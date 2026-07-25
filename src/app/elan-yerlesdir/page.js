@@ -1,0 +1,391 @@
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { apiFetch, getUser, getToken } from "@/lib/apiClient";
+
+const SELLER_ROLES = ["FARMER", "STORE", "ADMIN", "SUPER_ADMIN"];
+
+export default function PostListingPage() {
+  const [user, setUser] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [form, setForm] = useState({
+    titleAz: "",
+    categoryId: "",
+    price: "",
+    region: "",
+    city: "",
+    descriptionAz: "",
+    images: [],
+    guestName: "",
+    guestPhone: "",
+    tags: []
+  });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // AI & Upload state
+  const [aiLoading, setAiLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+  const [tagInput, setTagInput] = useState("");
+
+  useEffect(() => {
+    setUser(getUser());
+    apiFetch("/api/categories")
+      .then((d) => {
+        const flat = [];
+        (d.categories || []).forEach((cat) => {
+          if ((cat.children || []).length > 0) {
+            cat.children.forEach((ch) => flat.push({ ...ch, name: `${cat.name} › ${ch.name}` }));
+          } else {
+            flat.push(cat);
+          }
+        });
+        setCategories(flat);
+      })
+      .catch(() => {});
+  }, []);
+
+  const isSellerAccount = user && SELLER_ROLES.includes(user.role);
+
+  // Trigger toast notification
+  const triggerToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => {
+      setToastMsg("");
+    }, 4000);
+  };
+
+  // AI autocomplete suggestion from Title onBlur
+  const handleTitleBlur = async () => {
+    if (!form.titleAz.trim()) return;
+    setAiLoading(true);
+    try {
+      const selectedCategoryName = categories.find(c => c.id === form.categoryId)?.name || "";
+      const res = await fetch("/api/ai/suggest-listing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          description: form.titleAz + " " + (form.descriptionAz || ""),
+          category: selectedCategoryName
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setForm(prev => ({
+          ...prev,
+          descriptionAz: data.descriptionAz || data.description || prev.descriptionAz,
+          tags: Array.from(new Set([...(prev.tags || []), ...(data.tags || [])])).slice(0, 10)
+        }));
+        triggerToast("AI təsvir yazıldı ✨");
+      }
+    } catch (e) {
+      console.error("AI Auto-suggest failed:", e);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // Image Upload using Blob storage
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    if (form.images.length + files.length > 5) {
+      setError("Maksimum 5 şəkil əlavə edə bilərsiniz");
+      return;
+    }
+    setError("");
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      files.forEach((f) => fd.append("files", f));
+      const token = getToken();
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Yükləmə xətası");
+      
+      const newImages = [...form.images, ...data.images].slice(0, 5);
+      setForm(prev => ({ ...prev, images: newImages }));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImage = (index) => {
+    setForm(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
+  // Tags Hashtag handling
+  const handleTagKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const trimmed = tagInput.trim().replace(/^#/, '');
+      if (trimmed && !form.tags.includes(trimmed)) {
+        if (form.tags.length >= 10) {
+          setError("Maksimum 10 teq əlavə edə bilərsiniz");
+          return;
+        }
+        setForm(prev => ({ ...prev, tags: [...prev.tags, trimmed] }));
+        setTagInput("");
+      }
+    }
+  };
+
+  const removeTag = (indexToRemove) => {
+    setForm(prev => ({
+      ...prev,
+      tags: prev.tags.filter((_, i) => i !== indexToRemove)
+    }));
+  };
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const payload = {
+        titleAz: form.titleAz,
+        price: Number(form.price),
+        categoryId: form.categoryId,
+        region: form.region || undefined,
+        city: form.city || undefined,
+        descriptionAz: form.descriptionAz || undefined,
+        images: form.images,
+        tags: form.tags,
+      };
+      if (!isSellerAccount) {
+        payload.guestName = form.guestName;
+        payload.guestPhone = form.guestPhone;
+      }
+      await apiFetch("/api/products", { method: "POST", body: JSON.stringify(payload) });
+      setSuccess(true);
+    } catch (err) {
+      const details = err.details ? Object.values(err.details).filter(Boolean).flat().join(" · ") : "";
+      setError(details || err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (success) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-16 text-center">
+        <div className="text-5xl mb-4">✅</div>
+        <h1 className="text-xl font-extrabold mb-2">Elanınız qəbul edildi!</h1>
+        <p className="text-gray-600 text-sm">
+          Admin yoxlamasından keçdikdən sonra elanınız saytda görünəcək. Bu adətən qısa müddət çəkir.
+        </p>
+        <div className="flex justify-center gap-3 mt-6">
+          <Link href="/products" className="btn-secondary text-sm">Elanlara bax</Link>
+          {isSellerAccount && <Link href="/dashboard" className="btn-primary text-sm">Panelimə keç</Link>}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-lg mx-auto px-4 py-8">
+      {/* Toast */}
+      {toastMsg && (
+        <div className="fixed bottom-5 right-5 z-50 bg-brand-800 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 text-sm animate-bounce">
+          ✨ {toastMsg}
+        </div>
+      )}
+
+      {/* Guest Sign up / Sign in Banner */}
+      {!isSellerAccount && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex justify-between items-center text-sm">
+          <div className="text-amber-800 font-medium">
+            🌾 Qeydiyyatdan keç — daha çox imkan əldə et!
+          </div>
+          <Link href="/login" className="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all">
+            Daxil ol
+          </Link>
+        </div>
+      )}
+
+      <h1 className="text-xl font-extrabold mb-1">📢 Elan Yerləşdir</h1>
+      <p className="text-sm text-gray-500 mb-6">
+        {isSellerAccount
+          ? "Elanınız admin təsdiqindən sonra aktivləşəcək."
+          : "Qeydiyyatdan keçmədən elan yerləşdirə bilərsiniz — sadəcə əlaqə məlumatlarınızı doldurun. Elan admin təsdiqindən sonra göstəriləcək."}
+      </p>
+
+      {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2 mb-4">{error}</div>}
+
+      <form onSubmit={handleSubmit} className="card p-5 space-y-3">
+        <div className="relative">
+          <input
+            required
+            placeholder="Elanın adı (məs: Holştin cinsli inək satılır)"
+            className="input-field pr-10"
+            value={form.titleAz}
+            onChange={(e) => setForm({ ...form, titleAz: e.target.value })}
+            onBlur={handleTitleBlur}
+          />
+          {aiLoading && (
+            <div className="absolute right-3 top-3">
+              <svg className="animate-spin h-5 w-5 text-brand-600" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+              </svg>
+            </div>
+          )}
+        </div>
+
+        <select
+          required
+          className="input-field"
+          value={form.categoryId}
+          onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+        >
+          <option value="">Kateqoriya seçin</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+
+        <input
+          required
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="Qiymət (AZN)"
+          className="input-field"
+          value={form.price}
+          onChange={(e) => setForm({ ...form, price: e.target.value })}
+        />
+
+        <div className="grid grid-cols-2 gap-3">
+          <input
+            placeholder="Bölgə"
+            className="input-field"
+            value={form.region}
+            onChange={(e) => setForm({ ...form, region: e.target.value })}
+          />
+          <input
+            placeholder="Şəhər/Rayon"
+            className="input-field"
+            value={form.city}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
+          />
+        </div>
+
+        <textarea
+          placeholder="Ətraflı təsvir (istəyə bağlı)"
+          className="input-field min-h-24"
+          value={form.descriptionAz}
+          onChange={(e) => setForm({ ...form, descriptionAz: e.target.value })}
+        />
+
+        {/* Custom Image Uploader */}
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 mb-1.5">
+            Şəkillər (maksimum 5 şəkil əlavə edə bilərsiniz)
+          </label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {form.images.map((img, idx) => (
+              <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
+                <img src={img.url} alt="" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeImage(idx)}
+                  className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            {form.images.length < 5 && (
+              <label className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 hover:border-brand-400 hover:bg-brand-50 flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-brand-600 transition-all cursor-pointer">
+                {uploading ? (
+                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                  </svg>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span className="text-[10px] font-medium">Yüklə</span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                />
+              </label>
+            )}
+          </div>
+        </div>
+
+        {/* Hashtags Section */}
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 mb-1.5">
+            Hashtag-lər (Maksimum 10)
+          </label>
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {form.tags?.map((tag, idx) => (
+              <span key={idx} className="bg-brand-50 border border-brand-200 text-brand-700 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                #{tag}
+                <button type="button" onClick={() => removeTag(idx)} className="hover:text-red-600">✕</button>
+              </span>
+            ))}
+          </div>
+          <input
+            placeholder="Teq əlavə edin (Enter düyməsini basın)"
+            className="input-field text-sm"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={handleTagKeyDown}
+          />
+        </div>
+
+        {!isSellerAccount && (
+          <div className="border-t border-gray-100 pt-3 mt-1 space-y-3">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Əlaqə məlumatları</p>
+            <input
+              required
+              placeholder="Adınız"
+              className="input-field"
+              value={form.guestName}
+              onChange={(e) => setForm({ ...form, guestName: e.target.value })}
+            />
+            <input
+              required
+              placeholder="Telefon nömrəniz (məs: +994501234567)"
+              className="input-field"
+              value={form.guestPhone}
+              onChange={(e) => setForm({ ...form, guestPhone: e.target.value })}
+            />
+          </div>
+        )}
+
+        <button disabled={loading} className="btn-primary w-full mt-2">
+          {loading ? "Göndərilir..." : "Elanı Göndər"}
+        </button>
+
+        {!isSellerAccount && (
+          <p className="text-xs text-gray-400 text-center pt-1">
+            Hesabınız var? <Link href="/login" className="text-brand-700 font-medium">Daxil olun</Link> — elanlarınızı idarə etmək üçün.
+          </p>
+        )}
+      </form>
+    </div>
+  );
+}
