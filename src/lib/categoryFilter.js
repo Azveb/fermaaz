@@ -11,11 +11,27 @@ export async function resolveCategorySlugs(slug) {
   if (!slug) return null;
   const category = await prisma.category.findUnique({
     where: { slug },
-    include: { children: { select: { slug: true } } },
+    include: { 
+      children: { 
+        select: { 
+          slug: true,
+          children: { select: { slug: true } }
+        } 
+      } 
+    },
   });
-  if (!category) return [slug]; // unknown slug — let the query return zero results as before
-  if (category.children.length) {
-    return [category.slug, ...category.children.map((c) => c.slug)];
+  if (!category) return [slug];
+  
+  const slugs = new Set([category.slug]);
+  if (category.children && category.children.length) {
+    for (const child of category.children) {
+      slugs.add(child.slug);
+      if (child.children && child.children.length) {
+        for (const grandChild of child.children) {
+          slugs.add(grandChild.slug);
+        }
+      }
+    }
   }
-  return [category.slug];
+  return Array.from(slugs);
 }

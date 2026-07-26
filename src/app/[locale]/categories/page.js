@@ -9,8 +9,21 @@ export const metadata = {
 };
 
 export default async function CategoriesPage() {
-  const categories = await prisma.category.findMany({
-    orderBy: { nameAz: 'asc' }
+  const rootCategories = await prisma.category.findMany({
+    where: { parentId: null, isActive: true },
+    orderBy: { sortOrder: 'asc' },
+    include: {
+      children: {
+        where: { isActive: true },
+        orderBy: { sortOrder: 'asc' },
+        include: {
+          children: {
+            where: { isActive: true },
+            orderBy: { sortOrder: 'asc' }
+          }
+        }
+      }
+    }
   });
 
   return (
@@ -26,46 +39,56 @@ export default async function CategoriesPage() {
           </p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {categories.map((cat) => (
-            <Link 
-              key={cat.id} 
-              href={`/products?category=${cat.slug}`}
-              className="group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-brand-200 transition-all duration-300 overflow-hidden flex flex-col items-center text-center"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="w-16 h-16 rounded-full bg-brand-50 flex items-center justify-center text-brand-600 mb-4 group-hover:scale-110 group-hover:bg-brand-600 group-hover:text-white transition-all duration-300 shadow-inner z-10">
-                {/* Fallback icon if there is no image */}
-                {cat.image ? (
-                  <img src={cat.image} alt={cat.nameAz} className="w-8 h-8 object-contain" />
-                ) : (
-                  <Icon name="search" size={28} />
-                )}
+        <div className="space-y-12">
+          {rootCategories.map((root) => (
+            <div key={root.id} className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
+              <div className="flex items-center gap-4 mb-6 pb-4 border-b border-gray-100">
+                <div className="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center text-brand-600 shadow-inner">
+                  {root.image ? (
+                    <img src={root.image} alt={root.nameAz} className="w-8 h-8 object-contain" />
+                  ) : (
+                    <Icon name={root.icon || "sprout"} size={32} />
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">{root.nameAz}</h2>
+                  <Link href={`/products?category=${root.slug}`} className="text-sm font-semibold text-brand-600 hover:text-brand-700 mt-1 inline-block">Bütün {root.nameAz} →</Link>
+                </div>
               </div>
-              <h2 className="font-bold text-gray-800 text-sm md:text-base z-10 group-hover:text-brand-700 transition-colors">
-                {cat.nameAz}
-              </h2>
-            </Link>
+
+              {root.children && root.children.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {root.children.map(sub => (
+                    <div key={sub.id} className="group">
+                      <Link href={`/products?category=${sub.slug}`} className="text-lg font-bold text-gray-800 hover:text-brand-600 mb-3 flex items-center gap-2 transition-colors">
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-400 opacity-50 group-hover:opacity-100"></span>
+                        {sub.nameAz}
+                      </Link>
+                      
+                      {sub.children && sub.children.length > 0 && (
+                        <ul className="pl-4 space-y-2 border-l-2 border-brand-50 ml-0.5 mt-2">
+                          {sub.children.map(gch => (
+                            <li key={gch.id}>
+                              <Link href={`/products?category=${gch.slug}`} className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors inline-block py-1">
+                                {gch.nameAz}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400 text-sm">Alt kateqoriya yoxdur.</p>
+              )}
+            </div>
           ))}
 
-          {/* Placeholder for aesthetic fullness if DB is empty */}
-          {categories.length === 0 && (
-            <>
-              {[
-                { name: "Gübrələr", icon: "leaf" },
-                { name: "Toxumlar", icon: "sprout" },
-                { name: "Texnika", icon: "truck" },
-                { name: "Heyvandarlıq", icon: "activity" }
-              ].map((fallback, i) => (
-                <div key={i} className="group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-brand-200 transition-all duration-300 overflow-hidden flex flex-col items-center text-center cursor-pointer">
-                  <div className="absolute inset-0 bg-gradient-to-br from-brand-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="w-16 h-16 rounded-full bg-brand-50 flex items-center justify-center text-brand-600 mb-4 group-hover:scale-110 transition-all duration-300 z-10">
-                    <Icon name={fallback.icon} size={28} />
-                  </div>
-                  <h2 className="font-bold text-gray-800 text-sm md:text-base z-10 group-hover:text-brand-700">{fallback.name}</h2>
-                </div>
-              ))}
-            </>
+          {rootCategories.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              Heç bir kateqoriya tapılmadı.
+            </div>
           )}
         </div>
         

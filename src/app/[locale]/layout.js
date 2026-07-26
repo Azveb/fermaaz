@@ -63,7 +63,7 @@ export default async function RootLayout({ children, params: { locale } }) {
           <main className="flex-1 pb-20 md:pb-0">{children}</main>
           {footerAd && (
             <div className="max-w-6xl mx-auto px-4 pt-4 pb-24 md:pb-4">
-              <AdBanner content={footerAd} imgClassName="w-full h-20 md:h-24 object-cover rounded-xl" />
+              <AdBanner content={footerAd} className="w-full h-20 md:h-24 overflow-hidden rounded-xl" imgClassName="w-full h-20 md:h-24 object-cover" />
             </div>
           )}
           <Footer />

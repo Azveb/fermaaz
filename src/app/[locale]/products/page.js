@@ -68,7 +68,13 @@ export default async function ProductsPage({ searchParams }) {
       prisma.category.findMany({
         where: { isActive: true, parentId: null },
         orderBy: { sortOrder: "asc" },
-        include: { children: { where: { isActive: true }, orderBy: { sortOrder: "asc" } } },
+        include: { 
+          children: { 
+            where: { isActive: true }, 
+            orderBy: { sortOrder: "asc" },
+            include: { children: { where: { isActive: true }, orderBy: { sortOrder: "asc" } } }
+          } 
+        },
       }),
       getAdSlotContent("PRODUCT_LIST_TOP", { region }),
       getAdSlotContent("PRODUCT_LIST_INFEED", { region }),

@@ -28,6 +28,17 @@ export default function CategorySelector({ categories, defaultValue }) {
           found = true;
           break;
         }
+        if (ch.children) {
+          for (const gch of ch.children) {
+            if (gch.slug === defaultValue) {
+              setSelected({ id: gch.id, name: gch.nameAz, icon: c.icon, parentId: ch.id, slug: gch.slug, isParent: false });
+              setExpanded(prev => ({ ...prev, [c.id]: true, [ch.id]: true }));
+              found = true;
+              break;
+            }
+          }
+        }
+        if (found) break;
       }
       if (found) break;
     }
@@ -154,20 +165,69 @@ export default function CategorySelector({ categories, defaultValue }) {
                   <div className="pl-3 mt-1 border-l-2 border-brand-200 ml-6 flex flex-col gap-0.5 animate-fade-in">
                     {c.children.map((ch) => {
                       const isChildSelected = selected?.slug === ch.slug;
+                      const hasGrandChildren = ch.children && ch.children.length > 0;
+                      const isChildExpanded = !!expanded[ch.id];
+
                       return (
-                        <button
-                          key={ch.id}
-                          type="button"
-                          onClick={() => handleSelect(ch.slug, ch.nameAz, c.icon, false, ch.id, c.id)}
-                          className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg transition-all text-left ${
-                            isChildSelected
-                              ? "bg-brand-50/70 text-brand-700"
-                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                          }`}
-                        >
-                          <span className="text-gray-400">↳</span>
-                          <span className="truncate">{ch.nameAz}</span>
-                        </button>
+                        <div key={ch.id} className="flex flex-col">
+                          <div className="flex items-center justify-between w-full rounded-lg hover:bg-gray-50 pr-1">
+                            <button
+                              type="button"
+                              onClick={() => handleSelect(ch.slug, ch.nameAz, c.icon, false, ch.id, c.id)}
+                              className={`flex-1 flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg transition-all text-left ${
+                                isChildSelected
+                                  ? "bg-brand-50/70 text-brand-700"
+                                  : "text-gray-600 hover:text-gray-900"
+                              }`}
+                            >
+                              <span className="text-gray-400">↳</span>
+                              <span className="truncate">{ch.nameAz}</span>
+                            </button>
+                            
+                            {hasGrandChildren && (
+                              <button
+                                type="button"
+                                onClick={(e) => toggleExpand(ch.id, e)}
+                                className={`w-6 h-6 flex items-center justify-center rounded-md hover:bg-gray-200/60 text-gray-400 transition-all shrink-0 ${
+                                  isChildExpanded ? "bg-gray-100/50 text-gray-600" : ""
+                                }`}
+                              >
+                                <svg
+                                  className={`w-3 h-3 transition-transform duration-300 ${
+                                    isChildExpanded ? "rotate-180" : ""
+                                  }`}
+                                  fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"
+                                >
+                                  <path d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Grandchildren */}
+                          {hasGrandChildren && isChildExpanded && (
+                            <div className="pl-4 mt-0.5 ml-3 border-l-2 border-gray-100 flex flex-col gap-0.5">
+                              {ch.children.map((gch) => {
+                                const isGrandChildSelected = selected?.slug === gch.slug;
+                                return (
+                                  <button
+                                    key={gch.id}
+                                    type="button"
+                                    onClick={() => handleSelect(gch.slug, gch.nameAz, c.icon, false, gch.id, ch.id)}
+                                    className={`w-full flex items-center gap-2 px-3 py-1.5 text-[11px] font-medium rounded-md transition-all text-left ${
+                                      isGrandChildSelected
+                                        ? "bg-brand-50/50 text-brand-700 font-bold"
+                                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                                    }`}
+                                  >
+                                    <span className="text-gray-300">-</span>
+                                    <span className="truncate">{gch.nameAz}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
