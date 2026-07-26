@@ -32,6 +32,7 @@ import {
   Send,
   ZoomIn,
   X,
+  Apple, Bird, Bug, Carrot, Dog, Droplet, Fish, Leaf, Rabbit, Sprout, Tractor, Wheat
 } from "lucide-react";
 
 const ICONS = {
@@ -68,6 +69,18 @@ const ICONS = {
   send: Send,
   zoomIn: ZoomIn,
   close: X,
+  apple: Apple,
+  bird: Bird,
+  bug: Bug,
+  carrot: Carrot,
+  dog: Dog,
+  droplet: Droplet,
+  fish: Fish,
+  leaf: Leaf,
+  rabbit: Rabbit,
+  sprout: Sprout,
+  tractor: Tractor,
+  wheat: Wheat,
 };
 
 export default function Icon({ name, size = 18, strokeWidth = 1.8, className = "", ...props }) {

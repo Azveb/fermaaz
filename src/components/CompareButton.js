@@ -35,15 +35,22 @@ export default function CompareButton({ productId }) {
   };
 
   return (
-    <button
-      onClick={toggleCompare}
-      className={`font-semibold rounded-xl px-5 py-2.5 text-sm transition-all active:scale-95 flex items-center gap-1.5 ${
-        inCompare
-          ? "bg-amber-100 text-amber-800 border border-amber-200 hover:bg-amber-200"
-          : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
-      }`}
-    >
-      {inCompare ? "⚖️ Müqayisədən çıxar" : "⚖️ Müqayisə et"}
-    </button>
+    <div className="flex items-center gap-2">
+      <button
+        onClick={toggleCompare}
+        className={`font-semibold rounded-xl px-5 py-2.5 text-sm transition-all active:scale-95 flex items-center gap-1.5 ${
+          inCompare
+            ? "bg-amber-100 text-amber-800 border border-amber-200 hover:bg-amber-200"
+            : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+        }`}
+      >
+        {inCompare ? "⚖️ Müqayisədən çıxar" : "⚖️ Müqayisə et"}
+      </button>
+      {inCompare && (
+        <a href="/compare" className="text-sm font-bold text-brand-700 hover:underline">
+          Bax →
+        </a>
+      )}
+    </div>
   );
 }

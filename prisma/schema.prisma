@@ -943,3 +943,20 @@ model UserModule {
   @@unique([userId, module])
   @@index([userId])
 }
+
+// ==========================================================
+// Phase 10: Visual "No-Code" Admin Studio (Dynamic Blocks)
+// ==========================================================
+model DynamicBlock {
+  id        String   @id @default(cuid())
+  page      String   @default("home")
+  type      String
+  props     Json
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([page, isActive])
+  @@index([sortOrder])
+}

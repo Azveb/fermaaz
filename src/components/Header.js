@@ -39,8 +39,10 @@ export default function Header() {
   const [showLang, setShowLang] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const sync = () => {
       const u = getUser();
       setUser(u);
@@ -389,7 +391,12 @@ export default function Header() {
           )}
         </Link>
 
-        {user ? (
+        {!mounted ? (
+          <div className="flex flex-col items-center justify-center w-16 h-full text-gray-300">
+             <div className="w-6 h-6 bg-gray-100 rounded-full mb-1 animate-pulse" />
+             <span className="text-[10px] font-medium bg-gray-100 text-transparent rounded animate-pulse">....</span>
+          </div>
+        ) : user ? (
           <Link href="/dashboard" className="flex flex-col items-center justify-center w-16 h-full text-gray-500 hover:text-brand-600">
             <div className="w-6 h-6 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-[10px] font-bold mb-1 border border-brand-200">
               {user.fullName?.[0] || "U"}

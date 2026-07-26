@@ -52,7 +52,7 @@ export default async function RootLayout({ children }) {
   try { footerAd = await getAdSlotContent("FOOTER_STRIP"); } catch (_) {}
   return (
     <html lang="az">
-      <body className="min-h-screen flex flex-col"><LocaleProvider>
+      <body className="min-h-screen flex flex-col overflow-x-hidden"><LocaleProvider>
         <ServiceWorkerRegister />
         <Header />
         <main className="flex-1 pb-20 md:pb-0">{children}</main>

@@ -7,10 +7,11 @@ import { getAdSlotContent } from "@/lib/adSlots";
 import BundleCard from "@/components/BundleCard";
 import PromoSlider from "@/components/home/PromoSlider";
 import StatsSection from "@/components/home/StatsSection";
-import AgronomCard from "@/components/home/AgronomCard";
 import BlogSection from "@/components/home/BlogSection";
 import Footer from "@/components/home/Footer";
 import { getHomeFallbackData } from "@/lib/mockHomeData";
+import DynamicHomeRenderer from "@/components/home/DynamicHomeRenderer";
+import Icon from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -68,9 +69,9 @@ async function getHomeData() {
 }
 
 const CATEGORY_ICONS = {
-  heyvandarliq: "🐄", qusculuq: "🐔", texnika: "🚜", taxil: "🌾",
-  gubre: "🌱", toxum: "🌿", ariculiq: "🐝", sudculuk: "🥛",
-  meyvə: "🍎", tərəvəz: "🥦", balıq: "🐟", at: "🐴",
+  heyvandarliq: "dog", qusculuq: "bird", texnika: "tractor", taxil: "wheat",
+  gubre: "sprout", toxum: "leaf", ariculiq: "bug", sudculuk: "droplet",
+  meyvə: "apple", tərəvəz: "carrot", balıq: "fish", at: "rabbit",
 };
 
 const CATEGORY_THEMES = {
@@ -88,9 +89,22 @@ const CATEGORY_THEMES = {
 
 const DEFAULT_THEME = { bg: "from-gray-50 to-slate-50/30 hover:from-gray-100/70 hover:to-slate-100/30", border: "border-gray-100 hover:border-gray-200", iconBg: "bg-gray-100 text-gray-700", text: "text-gray-900" };
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }) {
+  const editMode = searchParams?.editMode === "true";
+  
   let homeData = { categories:[], premiumListings:[], homepageAd:null, latestProducts:[], bundles:[], blogPosts:[] };
-  try { homeData = await getHomeData(); } catch(e) { console.error("getHomeData failed:", e.message); }
+  let blocks = [];
+  
+  try { 
+    homeData = await getHomeData(); 
+    blocks = await prisma.dynamicBlock.findMany({
+      where: { page: "home", isActive: true },
+      orderBy: { sortOrder: "asc" }
+    });
+  } catch(e) { 
+    console.error("Fetch failed:", e.message); 
+  }
+  
   const { categories, premiumListings, homepageAd, latestProducts, bundles, blogPosts } = homeData;
 
   const jsonLd = {
@@ -105,11 +119,17 @@ export default async function HomePage() {
     },
   };
 
+  const useDynamicLayout = blocks.length > 0 || editMode;
+
   return (
     <div className="bg-[#F8FAFC] pb-24 md:pb-0">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* ─── HERO ─── */}
+      {useDynamicLayout ? (
+         <DynamicHomeRenderer initialBlocks={blocks} homeData={homeData} editMode={editMode} />
+      ) : (
+        <>
+          {/* ─── HERO ─── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-brand-500 px-4 pt-6 pb-12 md:pt-14 md:pb-20">
         {/* Background decoration */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
@@ -220,8 +240,8 @@ export default async function HomePage() {
                   className={`group flex items-center gap-3.5 p-4 rounded-2xl border bg-gradient-to-br ${theme.bg} ${theme.border} hover:shadow-md hover:-translate-y-1 active:scale-[0.98] transition-all duration-300`}
                   style={{ animationDelay: `${i * 0.05}s` }}
                 >
-                  <span className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center text-2xl shadow-sm ${theme.iconBg} group-hover:scale-110 transition-transform duration-300`}>
-                    {c.icon || CATEGORY_ICONS[c.slug] || "🌾"}
+                  <span className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center shadow-sm ${theme.iconBg} group-hover:scale-110 transition-transform duration-300`}>
+                    <Icon name={c.icon || CATEGORY_ICONS[c.slug] || "sprout"} size={26} strokeWidth={1.5} />
                   </span>
                   <div className="flex flex-col min-w-0">
                     <span className={`text-sm font-bold truncate leading-tight ${theme.text}`}>
@@ -342,6 +362,8 @@ export default async function HomePage() {
 
       {/* ─── FOOTER ─── */}
       <Footer />
+        </>
+      )}
     </div>
   );
 }
