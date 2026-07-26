@@ -11,7 +11,18 @@ export async function GET(request) {
   const categories = await prisma.category.findMany({
     where: { isActive: true },
     orderBy: [{ sortOrder: "asc" }, { nameAz: "asc" }],
-    include: { children: { where: { isActive: true }, orderBy: { sortOrder: "asc" } } },
+    include: { 
+      children: { 
+        where: { isActive: true }, 
+        orderBy: { sortOrder: "asc" },
+        include: {
+          children: {
+            where: { isActive: true },
+            orderBy: { sortOrder: "asc" }
+          }
+        }
+      } 
+    },
   });
 
   const localize = (cat) => ({
@@ -21,14 +32,12 @@ export async function GET(request) {
       locale === "en" ? cat.nameEn || cat.nameAz : locale === "ru" ? cat.nameRu || cat.nameAz : cat.nameAz,
     icon: cat.icon,
     parentId: cat.parentId,
+    children: cat.children ? cat.children.map(localize) : [],
   });
 
   const topLevel = categories
     .filter((c) => !c.parentId)
-    .map((c) => ({
-      ...localize(c),
-      children: c.children.map(localize),
-    }));
+    .map(localize);
 
   return Response.json({ categories: topLevel });
 }

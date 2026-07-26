@@ -30,19 +30,18 @@ export default function PostListingPage() {
   const [toastMsg, setToastMsg] = useState("");
   const [tagInput, setTagInput] = useState("");
 
+  const [categories, setCategories] = useState([]);
+  
+  // Cascading Category States
+  const [selectedMainCat, setSelectedMainCat] = useState("");
+  const [selectedSubCat, setSelectedSubCat] = useState("");
+  const [selectedSubSubCat, setSelectedSubSubCat] = useState("");
+
   useEffect(() => {
     setUser(getUser());
     apiFetch("/api/categories")
       .then((d) => {
-        const flat = [];
-        (d.categories || []).forEach((cat) => {
-          if ((cat.children || []).length > 0) {
-            cat.children.forEach((ch) => flat.push({ ...ch, name: `${cat.name} › ${ch.name}` }));
-          } else {
-            flat.push(cat);
-          }
-        });
-        setCategories(flat);
+        setCategories(d.categories || []);
       })
       .catch(() => {});
   }, []);
@@ -243,17 +242,67 @@ export default function PostListingPage() {
           )}
         </div>
 
-        <select
-          required
-          className="input-field"
-          value={form.categoryId}
-          onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-        >
-          <option value="">Kateqoriya seçin</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
+        <div className="space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+          <label className="block text-xs font-semibold text-gray-500">KATEQORİYA SEÇİMİ</label>
+          <select
+            className="input-field"
+            value={selectedMainCat}
+            onChange={(e) => {
+              setSelectedMainCat(e.target.value);
+              setSelectedSubCat("");
+              setSelectedSubSubCat("");
+              setForm({ ...form, categoryId: "" });
+            }}
+          >
+            <option value="">Ana kateqoriyanı seçin</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+
+          {selectedMainCat && categories.find(c => c.id === selectedMainCat)?.children?.length > 0 && (
+            <select
+              className="input-field animate-fade-in"
+              value={selectedSubCat}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSelectedSubCat(val);
+                setSelectedSubSubCat("");
+                
+                const mainCat = categories.find(c => c.id === selectedMainCat);
+                const subCat = mainCat?.children?.find(ch => ch.id === val);
+                
+                // If this sub-category doesn't have its own children, it's a leaf node.
+                if (subCat && (!subCat.children || subCat.children.length === 0)) {
+                  setForm({ ...form, categoryId: val });
+                } else {
+                  setForm({ ...form, categoryId: "" });
+                }
+              }}
+            >
+              <option value="">Alt kateqoriyanı seçin</option>
+              {categories.find(c => c.id === selectedMainCat).children.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          )}
+
+          {selectedSubCat && categories.find(c => c.id === selectedMainCat)?.children?.find(ch => ch.id === selectedSubCat)?.children?.length > 0 && (
+            <select
+              className="input-field animate-fade-in"
+              value={selectedSubSubCat}
+              onChange={(e) => {
+                setSelectedSubSubCat(e.target.value);
+                setForm({ ...form, categoryId: e.target.value });
+              }}
+            >
+              <option value="">Daha dəqiq kateqoriyanı seçin</option>
+              {categories.find(c => c.id === selectedMainCat).children.find(ch => ch.id === selectedSubCat).children.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          )}
+        </div>
 
         <input
           required

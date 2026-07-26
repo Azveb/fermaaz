@@ -95,7 +95,7 @@ export default function Header() {
           : "bg-white border-b border-gray-100"
       }`}
     >
-      <div className="max-w-6xl mx-auto px-4 flex flex-wrap items-center gap-4 min-h-[64px]">
+      <div className="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center gap-4 min-h-[72px]">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0 group">
           <span className="w-9 h-9 rounded-2xl bg-brand-600 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200">
