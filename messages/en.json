@@ -65,5 +65,6 @@
   "contact": "Contact",
   "address": "Address",
   "region": "Region",
-  "city": "City"
+  "city": "City",
+  "campaigns": "Campaigns"
 }
