@@ -4,9 +4,10 @@ import ProductCard from "@/components/ProductCard";
 import Icon from "@/components/ui/Icon";
 
 const CATEGORY_ICONS = {
-  heyvandarliq: "dog", qusculuq: "bird", texnika: "tractor", taxil: "wheat",
-  gubre: "sprout", toxum: "leaf", ariculiq: "bug", sudculuk: "droplet",
-  meyvə: "apple", tərəvəz: "carrot", balıq: "fish", at: "rabbit",
+  "bitki-muhafize": "bug",
+  "gubreler": "sprout",
+  "toxum-ting": "leaf",
+  "aqrotexnika": "tractor",
 };
 
 export default function DynamicHomeRenderer({ initialBlocks, homeData, editMode }) {

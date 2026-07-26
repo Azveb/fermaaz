@@ -69,9 +69,10 @@ async function getHomeData() {
 }
 
 const CATEGORY_ICONS = {
-  heyvandarliq: "dog", qusculuq: "bird", texnika: "tractor", taxil: "wheat",
-  gubre: "sprout", toxum: "leaf", ariculiq: "bug", sudculuk: "droplet",
-  meyvə: "apple", tərəvəz: "carrot", balıq: "fish", at: "rabbit",
+  "bitki-muhafize": "bug",
+  "gubreler": "sprout",
+  "toxum-ting": "leaf",
+  "aqrotexnika": "tractor",
 };
 
 const CATEGORY_THEMES = {
