@@ -175,6 +175,10 @@ export const productCreateSchema = z.object({
     .optional(),
   isCorporate: z.boolean().default(false),
   minOrderQty: z.number().int().positive().optional().nullable(),
+  allowRetail: z.boolean().default(true),
+  unit: z.string().default("ədəd"),
+  wholesalePrice: z.number().positive().optional().nullable(),
+  wholesaleMinQty: z.number().int().positive().optional().nullable(),
   tags: z.array(z.string().max(50)).max(10).default([]),
 });
 

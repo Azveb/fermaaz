@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import SafeImage from "@/components/SafeImage";
-import { getCart, updateQuantity, removeFromCart, cartTotal } from "@/lib/cartClient";
+import { getCart, updateQuantity, removeFromCart, cartTotal, getItemPrice } from "@/lib/cartClient";
 import Icon from "@/components/ui/Icon";
 
 export default function CartPage() {
@@ -31,7 +31,12 @@ export default function CartPage() {
       <h1 className="text-xl font-bold mb-4">Səbət ({items.length} məhsul)</h1>
       <div className="space-y-3">
         {items.map((item) => {
-          const minQty = item.isCorporate && item.minOrderQty ? item.minOrderQty : 1;
+          const wholesaleMin = item.wholesaleMinQty || 1;
+          const minQty = item.isCorporate && item.allowRetail === false ? wholesaleMin : 1;
+          const unit = item.unit || "ədəd";
+          const currentPrice = getItemPrice(item);
+          const isWholesalePriceApplied = item.isCorporate && item.wholesaleMinQty && item.quantity >= item.wholesaleMinQty && item.wholesalePrice;
+
           return (
             <div key={item.productId} className="card p-3 flex items-center gap-3">
               <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gray-100 shrink-0">
@@ -43,10 +48,15 @@ export default function CartPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate">{item.title}</p>
-                <p className="text-green-700 font-bold text-sm">{item.price} AZN</p>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <p className="text-green-700 font-bold text-sm">{currentPrice} AZN</p>
+                  {isWholesalePriceApplied && (
+                    <span className="text-[10px] bg-green-100 text-green-800 px-1.5 rounded font-bold">Topdan qiymət!</span>
+                  )}
+                </div>
                 {item.isCorporate && (
-                  <span className="text-[10px] text-orange-600 font-semibold bg-orange-50 px-1.5 py-0.5 rounded-full">
-                    Min: {minQty} ədəd
+                  <span className="text-[10px] text-orange-600 font-semibold bg-orange-50 px-1.5 py-0.5 rounded-full block w-max mt-1">
+                    Min. sifariş: {minQty} {unit}
                   </span>
                 )}
               </div>

@@ -18,7 +18,12 @@ export default function PostListingPage() {
     images: [],
     guestName: "",
     guestPhone: "",
-    tags: []
+    tags: [],
+    unit: "ədəd",
+    isCorporate: false,
+    wholesalePrice: "",
+    wholesaleMinQty: "",
+    allowRetail: true,
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -161,7 +166,18 @@ export default function PostListingPage() {
         descriptionAz: form.descriptionAz || undefined,
         images: form.images,
         tags: form.tags,
+        unit: form.unit,
+        isCorporate: form.isCorporate,
+        allowRetail: form.isCorporate ? form.allowRetail : true,
+        wholesalePrice: form.isCorporate && form.wholesalePrice ? Number(form.wholesalePrice) : undefined,
+        wholesaleMinQty: form.isCorporate && form.wholesaleMinQty ? Number(form.wholesaleMinQty) : undefined,
       };
+
+      // If corporate and retail is disabled, the standard price is the same as wholesale price
+      if (form.isCorporate && !form.allowRetail) {
+        payload.price = Number(form.wholesalePrice);
+      }
+
       if (!isSellerAccount) {
         payload.guestName = form.guestName;
         payload.guestPhone = form.guestPhone;
@@ -304,16 +320,107 @@ export default function PostListingPage() {
           )}
         </div>
 
-        <input
-          required
-          type="number"
-          min="0"
-          step="0.01"
-          placeholder="Qiymət (AZN)"
-          className="input-field"
-          value={form.price}
-          onChange={(e) => setForm({ ...form, price: e.target.value })}
-        />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="relative">
+            <label className="block text-xs font-semibold text-gray-500 mb-1">
+              Ölçü vahidi
+            </label>
+            <select
+              className="input-field"
+              value={form.unit}
+              onChange={(e) => setForm({ ...form, unit: e.target.value })}
+            >
+              <option value="ədəd">Ədəd</option>
+              <option value="kg">Kiloqram (kg)</option>
+              <option value="ton">Ton</option>
+              <option value="litr">Litr</option>
+              <option value="qutu">Qutu</option>
+              <option value="bağlama">Bağlama</option>
+            </select>
+          </div>
+          
+          {(!form.isCorporate || form.allowRetail) && (
+            <div className="relative">
+              <label className="block text-xs font-semibold text-gray-500 mb-1">
+                {form.isCorporate ? "Pərakəndə Qiymət (AZN)" : "Qiymət (AZN)"}
+              </label>
+              <input
+                required={!form.isCorporate || form.allowRetail}
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                className="input-field"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Corporate Ad Module Toggle */}
+        <div className="bg-brand-50 border border-brand-200 p-4 rounded-xl mt-4">
+          <label className="flex items-center gap-2 cursor-pointer font-semibold text-brand-900 mb-3">
+            <input
+              type="checkbox"
+              className="w-4 h-4 text-brand-600 rounded border-gray-300"
+              checked={form.isCorporate}
+              onChange={(e) => setForm({ ...form, isCorporate: e.target.checked })}
+            />
+            Bu məhsul Topdan (Korporativ) satılır?
+          </label>
+
+          {form.isCorporate && (
+            <div className="space-y-4 border-t border-brand-200 pt-3 animate-fade-in">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-brand-700 mb-1">
+                    Topdan Qiymət (AZN)
+                  </label>
+                  <input
+                    required
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Məs: 0.30"
+                    className="input-field bg-white"
+                    value={form.wholesalePrice}
+                    onChange={(e) => setForm({ ...form, wholesalePrice: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-brand-700 mb-1">
+                    Minimum Miqdar ({form.unit})
+                  </label>
+                  <input
+                    required
+                    type="number"
+                    min="1"
+                    placeholder="Məs: 100"
+                    className="input-field bg-white"
+                    value={form.wholesaleMinQty}
+                    onChange={(e) => setForm({ ...form, wholesaleMinQty: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-brand-800 bg-white p-3 rounded-lg border border-brand-100 shadow-sm">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-brand-600 rounded border-gray-300"
+                  checked={form.allowRetail}
+                  onChange={(e) => setForm({ ...form, allowRetail: e.target.checked })}
+                />
+                Pərakəndə satışa da icazə verirəm
+              </label>
+              {!form.allowRetail && (
+                <p className="text-xs text-brand-600">
+                  ℹ️ Məhsul yalnız {form.wholesaleMinQty || "..."} {form.unit} və daha yuxarı miqdarda sifariş edilə biləcək.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <input

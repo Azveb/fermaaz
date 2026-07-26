@@ -18,8 +18,18 @@ function saveCart(items) {
 }
 
 function getMinOrderQty(item) {
-  const minOrderQty = Number(item?.minOrderQty);
-  return item?.isCorporate && Number.isInteger(minOrderQty) && minOrderQty > 0 ? minOrderQty : 1;
+  if (!item?.isCorporate) return 1;
+  const wholesaleMin = Number(item?.wholesaleMinQty) || 1;
+  // If retail is NOT allowed, they MUST buy at least wholesaleMin
+  if (item.allowRetail === false) return wholesaleMin;
+  return 1;
+}
+
+export function getItemPrice(item) {
+  if (item.isCorporate && item.wholesaleMinQty && item.quantity >= item.wholesaleMinQty && item.wholesalePrice) {
+    return Number(item.wholesalePrice);
+  }
+  return Number(item.basePrice || item.price);
 }
 
 export function addToCart(product, quantity = 1) {
@@ -33,16 +43,23 @@ export function addToCart(product, quantity = 1) {
     const currentQty = Number.isFinite(Number(existing.quantity)) ? Number(existing.quantity) : 0;
     existing.quantity = Math.max(currentQty + requestedQty, minQty);
     existing.isCorporate = !!product.isCorporate;
-    existing.minOrderQty = product.isCorporate ? minQty : 1;
+    existing.allowRetail = product.allowRetail !== undefined ? product.allowRetail : true;
+    existing.wholesaleMinQty = product.wholesaleMinQty || product.minOrderQty || null;
+    existing.wholesalePrice = product.wholesalePrice || null;
+    existing.basePrice = Number(product.price);
   } else {
     items.push({
       productId: product.id,
       title: product.title || product.titleAz,
       price: Number(product.price),
+      basePrice: Number(product.price),
       coverImage: product.coverImage || product.images?.[0]?.url || null,
       quantity: Math.max(requestedQty, minQty),
       isCorporate: !!product.isCorporate,
-      minOrderQty: minQty,
+      allowRetail: product.allowRetail !== undefined ? product.allowRetail : true,
+      wholesaleMinQty: product.wholesaleMinQty || product.minOrderQty || null,
+      wholesalePrice: product.wholesalePrice || null,
+      unit: product.unit || "ədəd"
     });
   }
   saveCart(items);
@@ -73,7 +90,7 @@ export function clearCart() {
 }
 
 export function cartTotal(items) {
-  return items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  return items.reduce((sum, i) => sum + getItemPrice(i) * i.quantity, 0);
 }
 
 export function cartCount(items) {

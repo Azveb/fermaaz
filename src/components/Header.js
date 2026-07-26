@@ -125,6 +125,35 @@ export default function Header() {
 
         {/* Desktop Actions (Yeni Elan, Cart, Profile) */}
         <div className="hidden md:flex items-center gap-2">
+          {/* Language Switcher */}
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setShowLang((v) => !v)}
+              className="flex items-center gap-1.5 h-10 px-3 rounded-xl border border-gray-200 hover:border-brand-300 bg-white text-sm font-semibold text-gray-700 transition shadow-sm"
+            >
+              <Icon name="globe" size={16} className="text-brand-600" />
+              {locale.toUpperCase()}
+            </button>
+            {showLang && (
+              <div className="absolute top-full mt-2 right-0 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 w-24">
+                {Object.keys(LOCALE_LABELS).map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => {
+                      setLocale(l);
+                      setShowLang(false);
+                    }}
+                    className={`w-full text-left px-4 py-2 text-sm font-medium hover:bg-brand-50 transition ${
+                      locale === l ? "text-brand-600 bg-brand-50/50" : "text-gray-700"
+                    }`}
+                  >
+                    {LOCALE_LABELS[l]}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <Link
             href="/elan-yerlesdir"
             className="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all active:scale-95 shadow-sm"
@@ -188,6 +217,17 @@ export default function Header() {
         {/* Mobile right icons */}
         <div className="md:hidden flex items-center gap-2 ml-auto">
           {user && <NotificationBell />}
+          
+          {/* Mobile Lang Switch */}
+          <button
+            onClick={() => {
+              const next = locale === "az" ? "en" : locale === "en" ? "ru" : "az";
+              setLocale(next);
+            }}
+            className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-700 bg-white"
+          >
+            {locale.toUpperCase()}
+          </button>
         </div>
       </div>
 

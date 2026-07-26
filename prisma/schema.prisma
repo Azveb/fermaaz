@@ -469,6 +469,8 @@ model Product {
   // Corporate (bulk) listing fields
   isCorporate   Boolean       @default(false)
   minOrderQty   Int?          // minimum order quantity for corporate listings
+  allowRetail   Boolean       @default(true) // If false, user cannot buy below minOrderQty
+  unit          String        @default("ədəd") // "kg", "ton", "litr", "ədəd"
 
   viewCount   Int           @default(0)
   phoneViews  Int           @default(0) // Tap.az style click-to-show-phone counter

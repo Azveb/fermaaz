@@ -191,6 +191,8 @@ export async function GET(request) {
             : { fullName: p.guestName || "Qonaq", email: null, guestPhone: p.guestPhone || null, isGuest: true }
           : undefined,
       isCorporate: p.isCorporate,
+      allowRetail: p.allowRetail,
+      unit: p.unit,
       tags: p.tags || [],
       minOrderQty: p.minOrderQty || null,
       createdAt: p.createdAt,

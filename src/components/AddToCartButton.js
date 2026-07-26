@@ -7,8 +7,9 @@ export default function AddToCartButton({ product }) {
   const [added, setAdded] = useState(false);
   const [info, setInfo] = useState("");
 
-  // Accept product with or without isCorporate/minOrderQty
-  const minQty = product?.isCorporate && product?.minOrderQty ? product.minOrderQty : 1;
+  const minQty = product?.isCorporate && product?.wholesaleMinQty && product?.allowRetail === false 
+    ? product.wholesaleMinQty 
+    : 1;
 
   function handleClick() {
     try {
@@ -21,6 +22,10 @@ export default function AddToCartButton({ product }) {
           coverImage: product.coverImage || product.coverImage || product.images?.[0]?.url || null,
           isCorporate: !!product.isCorporate,
           minOrderQty: product.minOrderQty || 1,
+          allowRetail: product.allowRetail,
+          wholesalePrice: product.wholesalePrice,
+          wholesaleMinQty: product.wholesaleMinQty,
+          unit: product.unit
         },
         1
       );
@@ -50,7 +55,7 @@ export default function AddToCartButton({ product }) {
       </button>
       {minQty > 1 && !added && (
         <p className="text-xs text-orange-600 font-medium text-center">
-          <><Icon name="package" size={14} /> Minimum sifariş: {minQty} ədəd</>
+          <><Icon name="package" size={14} /> Minimum sifariş: {minQty} {product?.unit || "ədəd"}</>
         </p>
       )}
       {info && (
