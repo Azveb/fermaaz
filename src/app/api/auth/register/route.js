@@ -64,7 +64,7 @@ export async function POST(request) {
       action: "USER_REGISTERED",
       entity: "User",
       entityId: user.id,
-      details: `Registered from IP: ${ip}`,
+      metadata: { details: `Registered from IP: ${ip}` },
     },
   });
 

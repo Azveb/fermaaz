@@ -16,7 +16,7 @@ export async function POST(request) {
         data: {
           action: "FAILED_LOGIN_RATE_LIMIT",
           entity: "User",
-          details: `Failed login attempt (rate limited) for email: ${email} from IP: ${ip}`,
+          metadata: { details: `Failed login attempt (rate limited) for email: ${email} from IP: ${ip}` },
         },
       }).catch(() => {});
     } catch {}
@@ -47,7 +47,7 @@ export async function POST(request) {
       data: {
         action: "FAILED_LOGIN",
         entity: "User",
-        details: `Non-existent user attempt for email: ${email} from IP: ${ip}`,
+        metadata: { details: `Non-existent user attempt for email: ${email} from IP: ${ip}` },
       },
     }).catch(() => {});
     return Response.json({ error: "E-poçt və ya şifrə yanlışdır" }, { status: 401 });
@@ -61,7 +61,7 @@ export async function POST(request) {
         action: "FAILED_LOGIN",
         entity: "User",
         entityId: user.id,
-        details: `Incorrect password attempt from IP: ${ip}`,
+        metadata: { details: `Incorrect password attempt from IP: ${ip}` },
       },
     }).catch(() => {});
     return Response.json({ error: "E-poçt və ya şifrə yanlışdır" }, { status: 401 });
@@ -74,7 +74,7 @@ export async function POST(request) {
         action: "FAILED_LOGIN_SUSPENDED",
         entity: "User",
         entityId: user.id,
-        details: `Suspended/banned user attempt from IP: ${ip}`,
+        metadata: { details: `Suspended/banned user attempt from IP: ${ip}` },
       },
     }).catch(() => {});
     return Response.json({ error: "Hesabınız bloklanıb. Dəstək ilə əlaqə saxlayın." }, { status: 403 });
@@ -98,7 +98,7 @@ export async function POST(request) {
       action: "USER_LOGIN",
       entity: "User",
       entityId: user.id,
-      details: `Successful login from IP: ${ip}`,
+      metadata: { details: `Successful login from IP: ${ip}` },
     },
   }).catch(() => {});
 
