@@ -57,7 +57,7 @@ export default function BottomNav() {
 
   const leftItems = [
     { href: "/",           label: "Əsas",     icon: "home" },
-    { href: "/categories", label: "Kataloq",  icon: "dashboard" },
+    { href: "/favorites",  label: "Seçilmişlər",  icon: "heart" },
   ];
   const rightItems = isLoggedIn
     ? [
@@ -65,8 +65,8 @@ export default function BottomNav() {
         { href: "/dashboard", label: "Profil",   icon: "user" },
       ]
     : [
-        { href: "/blog",  label: "Bloq",  icon: "newspaper" },
-        { href: "/login", label: "Giriş", icon: "user" },
+        { href: "/products",  label: "Kataloq",  icon: "dashboard" },
+        { href: "/login",     label: "Giriş",    icon: "user" },
       ];
 
   return (
