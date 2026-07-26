@@ -11,6 +11,7 @@ import BlogSection from "@/components/home/BlogSection";
 import Footer from "@/components/home/Footer";
 import { getHomeFallbackData } from "@/lib/mockHomeData";
 import DynamicHomeRenderer from "@/components/home/DynamicHomeRenderer";
+import HeroSlider from "@/components/home/HeroSlider";
 import Icon from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
@@ -131,89 +132,10 @@ export default async function HomePage({ searchParams }) {
       ) : (
         <>
           {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-brand-500 px-4 pt-6 pb-12 md:pt-14 md:pb-20">
-        {/* Background decoration */}
-        <div className="absolute inset-0 pointer-events-none" aria-hidden>
-          <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
-          <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
-          <div className="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-green-300/10 blur-2xl" />
-        </div>
+          {/* ─── HERO SLIDER ─── */}
+          <HeroSlider />
 
-        <div className="relative max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse" />
-            Azərbaycanın №1 Kənd Təsərrüfatı Bazarı
-          </div>
-
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white leading-tight tracking-tight mb-3">
-            Kənd Təsərrüfatının<br />
-            <span className="text-green-200 drop-shadow-md">Rəqəmsal Bazarı</span>
-          </h1>
-          <p className="text-brand-100 text-sm md:text-base max-w-lg mx-auto mb-6">
-            Fermerlər, mağazalar, aqronomlar və alıcılar üçün AI dəstəkli vahid platforma
-          </p>
-
-          {/* CTA buttons */}
-          <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-2 bg-white text-brand-700 text-sm font-bold px-6 py-3 rounded-2xl hover:bg-gray-50 active:scale-95 transition-all duration-200 shadow-lg"
-            >
-              <span>🛒</span>
-              Elanları Gör
-            </Link>
-            <Link
-              href="/agronom"
-              className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-sm text-white text-sm font-semibold px-6 py-3 rounded-2xl border border-white/20 transition-all duration-200"
-            >
-              <span>🌱</span>
-              AI Aqronoma Soruş
-            </Link>
-          </div>
-        </div>
-
-        {/* Wave bottom */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-8 md:h-12">
-            <path d="M0 40 C360 0 1080 0 1440 40 L1440 40 L0 40 Z" fill="#F8FAFC" />
-          </svg>
-        </div>
-      </section>
-
-      <section className="relative z-10 max-w-6xl mx-auto px-4 -mt-8 md:-mt-10">
-        <div className="grid gap-4 md:grid-cols-3">
-          {[
-            {
-              title: "Premium təcrübə",
-              text: "Sürətli axtarış, premium elanlar və mobil optimizasiya ilə satışınızı bir tıkda artırın.",
-              icon: "✨",
-              accent: "from-emerald-50 to-teal-50",
-            },
-            {
-              title: "AI dəstəyi",
-              text: "Aqronom asistanı ilə məhsul, xəstəlik və çeşidləmə ilə bağlı cavablar alın.",
-              icon: "🤖",
-              accent: "from-sky-50 to-blue-50",
-            },
-            {
-              title: "24/7 bağlılıq",
-              text: "Mesajlar, elanlar, sifarişlər və satış takibi üçün vahid idarəetmə paneli.",
-              icon: "⚡",
-              accent: "from-amber-50 to-orange-50",
-            },
-          ].map((item) => (
-            <div key={item.title} className={`rounded-3xl border border-gray-200 bg-white/90 p-5 shadow-[0_20px_55px_-24px_rgba(15,23,42,0.35)] backdrop-blur ${item.accent}`}>
-              <div className="flex items-center gap-3 mb-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/80 text-xl shadow-sm">{item.icon}</span>
-                <h3 className="text-base font-bold text-gray-900">{item.title}</h3>
-              </div>
-              <p className="text-sm leading-6 text-gray-600">{item.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <div className="max-w-6xl mx-auto px-4 space-y-10 py-8 pb-28 md:pb-12">
+      <div className="max-w-6xl mx-auto px-4 space-y-10 pb-28 md:pb-12">
 
         {/* ─── PROMO SLIDER ─── */}
         <section className="animate-fade-in-up" style={{ animationDelay: "0.05s" }}>

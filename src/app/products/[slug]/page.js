@@ -10,6 +10,7 @@ import { getAdSlotContent } from "@/lib/adSlots";
 import ProductReviews from "@/components/ProductReviews";
 import ShareButtons from "@/components/ShareButtons";
 import CompareButton from "@/components/CompareButton";
+import ReportModal from "@/components/ReportModal";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
@@ -329,7 +330,10 @@ export default async function ProductDetailPage({ params }) {
           {/* Seller details card */}
           {seller && (
             <div className="card p-5 mt-6 border border-gray-100 rounded-2xl">
-              <h3 className="font-bold text-sm mb-3">Satıcı haqqında</h3>
+              <div className="flex items-center justify-between mb-3">
+                 <h3 className="font-bold text-sm">Satıcı haqqında</h3>
+                 <a href={`/seller/${seller.id}`} className="text-[11px] text-brand-600 font-bold hover:underline bg-brand-50 px-2 py-1 rounded-md">Profilə bax →</a>
+              </div>
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center text-xl font-bold">
                   {seller.fullName?.[0]}
@@ -337,7 +341,7 @@ export default async function ProductDetailPage({ params }) {
                 <div>
                   <p className="font-bold">{seller.fullName}</p>
                   <p className="text-xs text-gray-500">{seller.role === 'STORE' ? '🏪 Mağaza' : '🌾 Fermer'}</p>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 mt-0.5">
                     {'★'.repeat(Math.round(seller.avgRating||0))}{'☆'.repeat(5-Math.round(seller.avgRating||0))}
                     <span className="text-xs text-gray-400">({seller.reviewCount||0} rəy)</span>
                   </div>
@@ -345,21 +349,25 @@ export default async function ProductDetailPage({ params }) {
               </div>
               {/* Other listings */}
               {seller.otherListings?.length > 0 && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 mb-2">Bu satıcının digər elanları:</p>
+                <div className="mt-4">
+                  <p className="text-[11px] font-semibold text-gray-500 mb-2">Bu satıcının digər elanları:</p>
                   <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                     {seller.otherListings.slice(0,5).map(l => (
-                      <a key={l.id} href={`/products/${l.slug}`} className="shrink-0 w-24">
+                      <a key={l.id} href={`/products/${l.slug}`} className="shrink-0 w-20">
                         <div className="aspect-square rounded-lg bg-gray-100 overflow-hidden mb-1">
-                          {l.images?.[0] ? <img src={l.images[0].url} className="w-full h-full object-cover"/> : <div className="w-full h-full flex items-center justify-center text-2xl">🌾</div>}
+                          {l.images?.[0] ? <img src={l.images[0].url} className="w-full h-full object-cover"/> : <div className="w-full h-full flex items-center justify-center text-xl">🌾</div>}
                         </div>
-                        <p className="text-[10px] font-medium line-clamp-2">{l.titleAz}</p>
-                        <p className="text-[10px] font-bold text-brand-700">₼{Number(l.price).toLocaleString()}</p>
+                        <p className="text-[10px] font-medium line-clamp-2 leading-tight">{l.titleAz}</p>
+                        <p className="text-[10px] font-bold text-brand-700 mt-0.5">₼{Number(l.price).toLocaleString()}</p>
                       </a>
                     ))}
                   </div>
                 </div>
               )}
+              
+              <div className="mt-4 pt-3 border-t border-gray-100 flex justify-end">
+                <ReportModal productId={product.id} productTitle={product.titleAz} />
+              </div>
             </div>
           )}
 

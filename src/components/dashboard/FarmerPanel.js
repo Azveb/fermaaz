@@ -375,6 +375,21 @@ export default function FarmerPanel({ user }) {
     }
   }
 
+  async function promoteProduct(id) {
+    if (!confirm("Bu elanı PREMIUM etmək istəyirsiniz? (Test üçün pulsuzdur)")) return;
+    setError("");
+    try {
+      await apiFetch(`/api/products/${id}/promote`, {
+        method: "POST",
+        body: JSON.stringify({ tier: "PREMIUM", days: 30 })
+      });
+      setMsg("Elan Premium edildi! ⭐");
+      setTimeout(() => setMsg(""), 3000);
+    } catch(err) {
+      setError(err.message);
+    }
+  }
+
   async function advanceOrderStatus(order) {
     const next = NEXT_STATUS[order.status];
     if (!next) return;
@@ -645,6 +660,11 @@ export default function FarmerPanel({ user }) {
                           </div>
                           {["ACTIVE", "SOLD", "EXPIRED"].includes(p.status) && (
                             <div className="flex items-center gap-2">
+                              {p.status === "ACTIVE" && (
+                                <button onClick={() => promoteProduct(p.id)} className="text-[11px] font-bold text-amber-600 hover:text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">
+                                  ⭐ Premium et
+                                </button>
+                              )}
                               {p.status !== "SOLD" && (
                                 <button onClick={() => toggleProductStatus(p.id, "SOLD")} className="text-[11px] font-semibold text-blue-700 hover:text-blue-900">Satıldı kimi qeyd et</button>
                               )}
