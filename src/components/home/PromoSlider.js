@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 
 // Fallback slides when DB is empty
 const FALLBACK_SLIDES = [

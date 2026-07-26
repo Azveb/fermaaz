@@ -1,7 +1,7 @@
 "use client";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import SafeImage from "@/components/SafeImage";
 import { apiFetch } from "@/lib/apiClient";
 import { getToken } from "@/lib/apiClient";

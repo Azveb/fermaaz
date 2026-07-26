@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { apiFetch } from "@/lib/apiClient";
 import MessagingPanel from "@/components/chat/MessagingPanel";
 import AnalyticsPanel from "@/components/dashboard/AnalyticsPanel";

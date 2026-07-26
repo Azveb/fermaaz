@@ -1,11 +1,10 @@
 "use client";
-import Link from "next/link";
+import { Link, useRouter, usePathname } from "@/i18n/routing";
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { getUser } from "@/lib/apiClient";
 import { getCart, cartCount } from "@/lib/cartClient";
 import NotificationBell from "@/components/NotificationBell";
-import { useLocale } from "@/lib/localeContext";
+import { useLocale, useTranslations } from "next-intl";
 import { LOCALE_LABELS } from "@/lib/i18n";
 import Icon from "@/components/ui/Icon";
 
@@ -20,26 +19,29 @@ const ROLE_LABELS = {
   DELIVERY_PARTNER: "Çatdırılma",
 };
 
-const NAV_LINKS = [
-  { href: "/products", label: "Elanlar" },
-  { href: "/categories", label: "Kateqoriyalar" },
-  { href: "/campaigns", label: "Kampaniyalar" },
-  { href: "/stores", label: "Mağazalar" },
-  { href: "/blog", label: "Bloq" },
-  { href: "/agronom", label: "AI Aqronom" },
-];
-
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = useLocale();
+  const t = useTranslations();
+
   const [user, setUser] = useState(null);
   const [count, setCount] = useState(0);
   const [unreadMsg, setUnreadMsg] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { locale, setLocale } = useLocale();
   const [showLang, setShowLang] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef(null);
   const [mounted, setMounted] = useState(false);
+
+  const NAV_LINKS = [
+    { href: "/products", label: t("products") },
+    { href: "/categories", label: t("categories") },
+    { href: "/campaigns", label: t("campaigns") },
+    { href: "/stores", label: t("stores") },
+    { href: "/blog", label: t("blog") },
+    { href: "/agronom", label: t("agronom") },
+  ];
 
   useEffect(() => {
     setMounted(true);
@@ -86,6 +88,11 @@ export default function Header() {
     router.push('/');
   };
 
+  const changeLanguage = (newLocale) => {
+    router.replace(pathname, { locale: newLocale });
+    setShowLang(false);
+  };
+
   return (
     <>
     <header
@@ -107,11 +114,11 @@ export default function Header() {
         </Link>
 
         {/* Desktop search */}
-        <form action="/products" className="hidden md:flex flex-1 max-w-lg h-10 mx-4">
+        <form action={`/${locale}/products`} className="hidden md:flex flex-1 max-w-lg h-10 mx-4">
           <div className="flex w-full rounded-2xl border border-gray-200 overflow-hidden focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100 transition-all">
             <input
               name="search"
-              placeholder="Məhsul, kateqoriya axtar..."
+              placeholder={t("search_placeholder")}
               className="flex-1 min-w-0 h-full px-4 text-sm bg-gray-50 focus:outline-none focus:bg-white transition-colors"
             />
             <button
@@ -123,7 +130,7 @@ export default function Header() {
           </div>
         </form>
 
-        {/* Desktop Actions (Yeni Elan, Cart, Profile) */}
+        {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-2">
           {/* Language Switcher */}
           <div className="relative" ref={menuRef}>
@@ -139,10 +146,7 @@ export default function Header() {
                 {Object.keys(LOCALE_LABELS).map((l) => (
                   <button
                     key={l}
-                    onClick={() => {
-                      setLocale(l);
-                      setShowLang(false);
-                    }}
+                    onClick={() => changeLanguage(l)}
                     className={`w-full text-left px-4 py-2 text-sm font-medium hover:bg-brand-50 transition ${
                       locale === l ? "text-brand-600 bg-brand-50/50" : "text-gray-700"
                     }`}
@@ -159,24 +163,24 @@ export default function Header() {
             className="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all active:scale-95 shadow-sm"
           >
             <Icon name="plus" size={16} strokeWidth={2.3} />
-            Yeni Elan
+            {locale === "az" ? "Yeni Elan" : locale === "ru" ? "Новое Обьявление" : "New Listing"}
           </Link>
 
           {user && (
-            <Link href="/messages" className="btn-ghost relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-50 text-gray-700 transition">
-              <Icon name="message" size={20} />
+            <Link href="/messages" className="relative w-11 h-11 flex items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:border-brand-300 hover:bg-gray-50 text-gray-700 transition-all">
+              <Icon name="message" size={22} strokeWidth={2} />
               {unreadMsg > 0 && (
-                <span className="absolute top-1 right-1 bg-brand-600 text-white text-[10px] font-bold rounded-full w-[18px] h-[18px] flex items-center justify-center border-2 border-white">
+                <span className="absolute -top-1.5 -right-1.5 bg-brand-600 text-white text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-sm">
                   {unreadMsg > 9 ? "9+" : unreadMsg}
                 </span>
               )}
             </Link>
           )}
           
-          <Link href="/cart" className="btn-ghost relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-50 text-gray-700 transition">
-            <Icon name="cart" size={20} />
+          <Link href="/cart" className="relative w-11 h-11 flex items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:border-brand-300 hover:bg-gray-50 text-gray-700 transition-all">
+            <Icon name="cart" size={22} strokeWidth={2} />
             {count > 0 && (
-              <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-[18px] h-[18px] flex items-center justify-center border-2 border-white">
+              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-sm">
                 {count > 9 ? "9+" : count}
               </span>
             )}
@@ -201,16 +205,16 @@ export default function Header() {
                     <p className="text-xs text-gray-500">{ROLE_LABELS[user.role]}</p>
                   </div>
                   <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-brand-50 hover:text-brand-700 font-medium transition" onClick={() => setMenuOpen(false)}>
-                    <Icon name="dashboard" size={16} /> Panelim
+                    <Icon name="dashboard" size={16} /> {t("dashboard")}
                   </Link>
                   <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-red-50 text-red-600 font-medium mt-1 transition">
-                    <Icon name="logout" size={16} /> Çıxış
+                    <Icon name="logout" size={16} /> {t("logout")}
                   </button>
                 </div>
               )}
             </div>
           ) : (
-            <Link href="/login" className="ml-2 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm px-5 py-2 rounded-xl transition">Giriş</Link>
+            <Link href="/login" className="ml-2 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm px-5 py-2 rounded-xl transition">{t("login")}</Link>
           )}
         </div>
 
@@ -222,7 +226,7 @@ export default function Header() {
           <button
             onClick={() => {
               const next = locale === "az" ? "en" : locale === "en" ? "ru" : "az";
-              setLocale(next);
+              changeLanguage(next);
             }}
             className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-700 bg-white"
           >
@@ -244,13 +248,13 @@ export default function Header() {
 
       {/* Mobile search bar (Only visible on small screens) */}
       <div className="md:hidden w-full pb-3 px-3 mt-1 bg-white">
-        <form action="/products" className="flex h-11 shadow-sm rounded-xl overflow-hidden border border-gray-200 focus-within:border-brand-400 focus-within:ring-4 focus-within:ring-brand-50 transition-all bg-gray-50">
+        <form action={`/${locale}/products`} className="flex h-11 shadow-sm rounded-xl overflow-hidden border border-gray-200 focus-within:border-brand-400 focus-within:ring-4 focus-within:ring-brand-50 transition-all bg-gray-50">
           <div className="flex items-center justify-center w-11 text-gray-400">
             <Icon name="search" size={18} strokeWidth={2.2} />
           </div>
           <input
             name="search"
-            placeholder="Məhsul axtar..."
+            placeholder={t("search_placeholder")}
             className="flex-1 min-w-0 h-full text-sm bg-transparent focus:outline-none text-gray-800 pr-4"
           />
         </form>

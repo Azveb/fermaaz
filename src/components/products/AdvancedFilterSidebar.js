@@ -1,5 +1,6 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { useCallback, useState, useEffect } from "react";
 import CategorySelector from "@/components/ui/CategorySelector";
 import Icon from "@/components/ui/Icon";

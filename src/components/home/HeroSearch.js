@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 
 const TRENDING = [
   "Pomidor toxumu", "Azot gübrəsi", "Dana satılır",

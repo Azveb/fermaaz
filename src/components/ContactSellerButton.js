@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { apiFetch, getUser } from "@/lib/apiClient";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import Icon from "@/components/ui/Icon";
 
 export default function ContactSellerButton({ sellerId, productId, productTitle }) {
