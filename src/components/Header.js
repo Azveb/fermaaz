@@ -89,8 +89,9 @@ export default function Header() {
   };
 
   const changeLanguage = (newLocale) => {
-    router.replace(pathname, { locale: newLocale });
-    setShowLang(false);
+    const currentPath = window.location.pathname;
+    const newPath = currentPath.replace(/^\/(az|en|ru)/, `/${newLocale}`);
+    window.location.href = newPath + window.location.search;
   };
 
   return (
@@ -167,20 +168,20 @@ export default function Header() {
           </Link>
 
           {user && (
-            <Link href="/messages" className="relative w-11 h-11 flex items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:border-brand-300 hover:bg-gray-50 text-gray-700 transition-all">
-              <Icon name="message" size={22} strokeWidth={2} />
+            <Link href="/messages" className="relative w-12 h-12 flex items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:border-brand-300 hover:bg-gray-50 text-gray-700 transition-all">
+              <Icon name="message" size={24} strokeWidth={2} />
               {unreadMsg > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-brand-600 text-white text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-sm">
+                <span className="absolute -top-1.5 -right-1.5 bg-brand-600 text-white text-[12px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-sm animate-pulse">
                   {unreadMsg > 9 ? "9+" : unreadMsg}
                 </span>
               )}
             </Link>
           )}
           
-          <Link href="/cart" className="relative w-11 h-11 flex items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:border-brand-300 hover:bg-gray-50 text-gray-700 transition-all">
-            <Icon name="cart" size={22} strokeWidth={2} />
+          <Link href="/cart" className="relative w-12 h-12 flex items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:border-brand-300 hover:bg-gray-50 text-gray-700 transition-all">
+            <Icon name="cart" size={24} strokeWidth={2} />
             {count > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-sm">
+              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[12px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-sm animate-pulse">
                 {count > 9 ? "9+" : count}
               </span>
             )}
@@ -221,6 +222,16 @@ export default function Header() {
         {/* Mobile right icons */}
         <div className="md:hidden flex items-center gap-2 ml-auto">
           {user && <NotificationBell />}
+          
+          {/* Mobile Cart Icon */}
+          <Link href="/cart" className="relative w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm active:scale-95 transition-transform">
+            <Icon name="cart" size={20} strokeWidth={2} />
+            {count > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-sm animate-pulse">
+                {count > 9 ? "9+" : count}
+              </span>
+            )}
+          </Link>
           
           {/* Mobile Lang Switch */}
           <button
