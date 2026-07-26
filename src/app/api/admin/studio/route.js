@@ -1,9 +1,27 @@
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, requireRole } from "@/lib/auth";
-import fs from "fs";
-import path from "path";
 
-const configPath = path.join(process.cwd(), "src/lib/adminStudioConfig.json");
+// Default config
+const DEFAULT_CONFIG = {
+  siteName: "FermerMarket",
+  tagline: "Kənd Təsərrüfatının Rəqəmsal Bazarı",
+  currency: "AZN",
+  locale: "AZ",
+  maintenanceMode: false,
+  allowRegistration: true,
+  allowListings: true,
+  allowReviews: true,
+  allowWallet: true,
+  allowCoupons: true,
+  allowBundles: true,
+  allowBlog: true,
+  allowPush: false,
+  allowCampaigns: true,
+  allowStores: true,
+  showAnalytics: true,
+  enableAdminAudit: true,
+  require2FA: false
+};
 
 export async function GET(request) {
   const authUser = getAuthUser(request);
@@ -11,8 +29,11 @@ export async function GET(request) {
   if (denied) return denied;
 
   try {
-    const raw = fs.readFileSync(configPath, "utf8");
-    return Response.json({ config: JSON.parse(raw) });
+    let block = await prisma.dynamicBlock.findFirst({
+      where: { page: "system", type: "admin_config" }
+    });
+    
+    return Response.json({ config: block ? block.props : DEFAULT_CONFIG });
   } catch (error) {
     return Response.json({ error: "Konfigürasiya yüklənmədi" }, { status: 500 });
   }
@@ -25,13 +46,33 @@ export async function POST(request) {
 
   try {
     const body = await request.json();
-    const raw = fs.readFileSync(configPath, "utf8");
-    const current = JSON.parse(raw);
-    const next = { ...current, ...body };
-    fs.writeFileSync(configPath, JSON.stringify(next, null, 2));
 
-    return Response.json({ success: true, config: next });
+    let block = await prisma.dynamicBlock.findFirst({
+      where: { page: "system", type: "admin_config" }
+    });
+
+    const currentConfig = block ? block.props : DEFAULT_CONFIG;
+    const nextConfig = { ...currentConfig, ...body };
+
+    if (block) {
+      await prisma.dynamicBlock.update({
+        where: { id: block.id },
+        data: { props: nextConfig }
+      });
+    } else {
+      await prisma.dynamicBlock.create({
+        data: {
+          page: "system",
+          type: "admin_config",
+          props: nextConfig
+        }
+      });
+    }
+
+    return Response.json({ success: true, config: nextConfig });
   } catch (error) {
+    console.error(error);
     return Response.json({ error: "Konfigürasiya yenilənmədi" }, { status: 500 });
   }
 }
+
