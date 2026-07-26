@@ -45,7 +45,7 @@ export default function HeroSlider() {
       {SLIDES.map((slide, idx) => (
         <div
           key={idx}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out bg-gradient-to-br ${slide.bg} flex items-center justify-center text-center px-4 ${
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out bg-gradient-to-br ${slide.bg} flex items-center justify-center text-center px-4 pb-12 ${
             current === idx ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
         >
@@ -78,7 +78,7 @@ export default function HeroSlider() {
       ))}
 
       {/* Dots */}
-      <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2.5">
+      <div className="absolute bottom-10 md:bottom-12 left-0 right-0 z-20 flex justify-center gap-2.5">
         {SLIDES.map((_, idx) => (
           <button
             key={idx}
