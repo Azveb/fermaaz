@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import Icon from "@/components/ui/Icon";
 
 export default function CategorySelector({ categories, defaultValue }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -77,11 +78,11 @@ export default function CategorySelector({ categories, defaultValue }) {
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between border border-[var(--border)] bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-brand-100 focus:border-brand-500 transition-all duration-300 select-none cursor-pointer"
       >
-        <span className="flex items-center gap-2 text-gray-700 font-medium truncate">
+        <span className="flex items-center gap-2 text-gray-700 font-medium">
           {selected ? (
             <>
-              <span className="text-base">{selected.icon || "🌾"}</span>
-              <span className="truncate">{selected.name}</span>
+              <span className="text-base shrink-0 text-brand-600">{selected.icon ? <Icon name={selected.icon} size={18} /> : "🌾"}</span>
+              <span className="whitespace-normal break-words text-left">{selected.name}</span>
             </>
           ) : (
             <span className="text-gray-400">Bütün kateqoriyalar</span>
@@ -128,12 +129,12 @@ export default function CategorySelector({ categories, defaultValue }) {
                   <button
                     type="button"
                     onClick={() => handleSelect(c.slug, c.nameAz, c.icon, true, c.id)}
-                    className={`flex-1 flex items-center gap-2 px-3 py-2 text-sm font-bold rounded-xl transition-all text-left truncate ${
+                    className={`flex-1 flex items-center gap-2 px-3 py-2 text-sm font-bold rounded-xl transition-all text-left ${
                       isParentSelected ? "bg-brand-50/80 text-brand-700" : "text-gray-900"
                     }`}
                   >
-                    <span className="text-base shrink-0">{c.icon || "🌾"}</span>
-                    <span className="truncate">{c.nameAz}</span>
+                    <span className="text-base shrink-0 text-brand-600">{c.icon ? <Icon name={c.icon} size={18} /> : "🌾"}</span>
+                    <span className="whitespace-normal break-words">{c.nameAz}</span>
                   </button>
 
                   {/* Accordion Toggle Chevron (only if category has children) */}
@@ -180,8 +181,8 @@ export default function CategorySelector({ categories, defaultValue }) {
                                   : "text-gray-600 hover:text-gray-900"
                               }`}
                             >
-                              <span className="text-gray-400">↳</span>
-                              <span className="truncate">{ch.nameAz}</span>
+                              <span className="text-gray-400 shrink-0">↳</span>
+                              <span className="whitespace-normal break-words">{ch.nameAz}</span>
                             </button>
                             
                             {hasGrandChildren && (
@@ -220,8 +221,8 @@ export default function CategorySelector({ categories, defaultValue }) {
                                         : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
                                     }`}
                                   >
-                                    <span className="text-gray-300">-</span>
-                                    <span className="truncate">{gch.nameAz}</span>
+                                    <span className="text-gray-300 shrink-0">-</span>
+                                    <span className="whitespace-normal break-words">{gch.nameAz}</span>
                                   </button>
                                 );
                               })}
