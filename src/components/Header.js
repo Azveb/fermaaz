@@ -89,13 +89,13 @@ export default function Header() {
   return (
     <>
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
+      className={`sticky top-0 z-50 transition-all duration-300 mt-2 md:mt-4 ${
         scrolled
           ? "bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-100"
           : "bg-white border-b border-gray-100"
       }`}
     >
-      <div className="max-w-6xl mx-auto px-4 pt-3 pb-2 flex flex-wrap items-center justify-between gap-4">
+      <div className="max-w-6xl mx-auto px-4 py-3 md:py-4 flex flex-wrap items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0 group">
           <span className="w-9 h-9 rounded-2xl bg-brand-600 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200">

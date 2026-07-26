@@ -32,7 +32,7 @@ import {
   Send,
   ZoomIn,
   X,
-  Apple, Bird, Bug, Carrot, Dog, Droplet, Fish, Leaf, Rabbit, Sprout, Tractor, Wheat
+  Apple, Bird, Bug, Carrot, Dog, Droplet, Fish, Leaf, Rabbit, Tractor, Wheat
 } from "lucide-react";
 
 const ICONS = {

@@ -34,8 +34,6 @@ export default function PostListingPage() {
   const [uploading, setUploading] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const [tagInput, setTagInput] = useState("");
-
-  const [categories, setCategories] = useState([]);
   
   // Cascading Category States
   const [selectedMainCat, setSelectedMainCat] = useState("");
