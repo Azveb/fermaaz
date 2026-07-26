@@ -47,17 +47,24 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
-      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap bg-gradient-to-r from-brand-600 to-green-500 rounded-3xl p-6 text-white shadow-xl">
         <div>
-          <h1 className="text-xl font-black text-gray-900">
+          <h1 className="text-2xl font-black">
             Salam, {user.fullName?.split(" ")[0]} 👋
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-sm opacity-90 mt-1">
             {user.email}
-            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-100">
+            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-white text-brand-700 shadow-sm">
               {roleLabel}
             </span>
           </p>
+        </div>
+        <div className="bg-white/20 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/30 text-right">
+          <p className="text-xs uppercase font-bold tracking-wider opacity-90">FermerCoin Balansınız</p>
+          <div className="text-2xl font-black flex items-center gap-1.5 justify-end">
+            <span className="text-yellow-300">🪙</span> 
+            {typeof window !== 'undefined' ? (localStorage.getItem('fermerCoin') || '0.00') : '0.00'}
+          </div>
         </div>
       </div>
 

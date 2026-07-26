@@ -24,6 +24,7 @@ export default function CheckoutPage() {
     setError("");
     setLoading(true);
     try {
+      const totalVal = cartTotal(items);
       const payload = {
         items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
         ...(form.couponCode ? { couponCode: form.couponCode } : {}),
@@ -32,8 +33,15 @@ export default function CheckoutPage() {
         shippingCity: form.shippingCity,
       };
       const data = await apiFetch("/api/orders", { method: "POST", body: JSON.stringify(payload) });
+      
+      const earnedCoin = (totalVal * 0.02).toFixed(2);
+      if (typeof window !== 'undefined') {
+        const current = parseFloat(localStorage.getItem('fermerCoin') || '0');
+        localStorage.setItem('fermerCoin', (current + parseFloat(earnedCoin)).toFixed(2));
+      }
+      
       clearCart();
-      setSuccess(data.order);
+      setSuccess({ ...data.order, earnedCoin });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,10 +53,16 @@ export default function CheckoutPage() {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center">
         <p className="text-5xl mb-3">✅</p>
-        <h1 className="text-xl font-bold">Sifariş qəbul edildi!</h1>
-        <p className="text-gray-500 mt-2">Sifariş nömrəniz: {success.id.slice(0, 8)}</p>
-        <p className="text-brand-700 font-bold text-lg mt-1">{Number(success.total).toFixed(2)} AZN</p>
-        <a href="/dashboard" className="btn-primary inline-block mt-5">Panelimə keç</a>
+        <h1 className="text-2xl font-black">Sifariş qəbul edildi!</h1>
+        <p className="text-gray-500 mt-2">Sifariş nömrəniz: {success.id?.slice(0, 8)}</p>
+        <p className="text-brand-700 font-bold text-lg mt-1">{Number(success.total || 0).toFixed(2)} AZN</p>
+        
+        <div className="mt-6 bg-gradient-to-r from-yellow-100 to-yellow-50 border border-yellow-200 p-4 rounded-2xl">
+          <p className="text-sm text-yellow-800 font-bold">🎉 Təbriklər!</p>
+          <p className="text-xs text-yellow-700 mt-1">Bu alış-verişdən <strong className="text-lg">+{success.earnedCoin} 🪙</strong> FermerCoin qazandınız. Balansınızı Panelinizdən yoxlaya bilərsiniz.</p>
+        </div>
+
+        <a href="/dashboard" className="btn-primary inline-block mt-6 w-full text-center">Panelimə keç</a>
       </div>
     );
   }

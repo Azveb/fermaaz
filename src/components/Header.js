@@ -22,8 +22,9 @@ const ROLE_LABELS = {
 
 const NAV_LINKS = [
   { href: "/products", label: "Elanlar" },
+  { href: "/categories", label: "Kateqoriyalar" },
+  { href: "/campaigns", label: "Kampaniyalar" },
   { href: "/stores", label: "Mağazalar" },
-  { href: "/leaderboard", label: "Liderlər" },
   { href: "/blog", label: "Bloq" },
   { href: "/agronom", label: "AI Aqronom" },
 ];
@@ -133,33 +134,6 @@ export default function Header() {
             <Icon name="plus" size={16} strokeWidth={2.3} />
             Yeni Elan
           </Link>
-          {/* Dil seçici */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowLang(!showLang)}
-                  className="flex items-center gap-0.5 text-xs font-bold text-gray-600 hover:text-brand-600 border border-gray-200 rounded-lg px-2 py-1 hover:border-brand-300 transition-all bg-white/80"
-                >
-                  {locale === "az" ? "🇦🇿" : locale === "en" ? "🇬🇧" : "🇷🇺"}
-                  <span className="uppercase">{locale}</span>
-                  <Icon name="chevronDown" size={13} strokeWidth={2.2} className={`transition-transform ${showLang ? "rotate-180" : ""}`} />
-                </button>
-                {showLang && (
-                  <>
-                    <div className="fixed inset-0 z-30" onClick={() => setShowLang(false)} />
-                    <div className="absolute right-0 top-9 bg-white border border-gray-100 rounded-xl shadow-xl z-40 min-w-[90px] overflow-hidden">
-                      {[["az","🇦🇿","AZ"],["en","🇬🇧","EN"],["ru","🇷🇺","RU"]].map(([l, flag, code]) => (
-                        <button
-                          key={l}
-                          onClick={() => { setLocale(l); setShowLang(false); }}
-                          className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold hover:bg-brand-50 transition-colors ${locale===l ? "bg-brand-50 text-brand-600" : "text-gray-700"}`}
-                        >
-                          {flag} {code}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
               {user && <NotificationBell />}
           {user && (
             <Link href="/messages" className="btn-ghost relative text-sm font-medium">

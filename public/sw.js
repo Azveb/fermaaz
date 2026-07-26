@@ -1,79 +1,55 @@
-const CACHE_NAME = "fermermarket-shell-v1";
-const APP_SHELL = ["/manifest.json", "/icons/icon-192.png", "/icons/icon-512.png", "/offline.html"];
+const CACHE_NAME = 'fermermarket-v1';
+const OFFLINE_URL = '/';
 
-self.addEventListener("install", (event) => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).catch(() => {})
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll([OFFLINE_URL]);
+    })
   );
   self.skipWaiting();
 });
 
-self.addEventListener("activate", (event) => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
+    })
   );
   self.clients.claim();
 });
 
-self.addEventListener("fetch", (event) => {
-  const { request } = event;
-  if (request.method !== "GET") return;
-
-  // Never cache API calls — always go to network for fresh data.
-  if (request.url.includes("/api/")) return;
-
-  if (request.mode === "navigate") {
+self.addEventListener('fetch', (event) => {
+  if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() => caches.match("/offline.html"))
+      fetch(event.request).catch(() => caches.match(OFFLINE_URL))
     );
-    return;
   }
-
-  event.respondWith(
-    caches.match(request).then(
-      (cached) =>
-        cached ||
-        fetch(request)
-          .then((response) => {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
-            return response;
-          })
-          .catch(() => cached)
-    )
-  );
 });
 
-// ---- Web Push (order status / new message notifications) ----
-self.addEventListener("push", (event) => {
-  if (!event.data) return;
-  let payload;
-  try {
-    payload = event.data.json();
-  } catch {
-    payload = { title: "FermerMarket", body: event.data.text() };
+// Web Push Notification Listener
+self.addEventListener('push', (event) => {
+  if (event.data) {
+    const payload = event.data.json();
+    const title = payload.title || 'FermerMarket';
+    const options = {
+      body: payload.body || 'Yeni bildirişiniz var.',
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      data: payload.url || '/',
+      vibrate: [200, 100, 200]
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
   }
-  const title = payload.title || "FermerMarket";
-  const options = {
-    body: payload.body || "",
-    icon: "/icons/icon-192.png",
-    badge: "/icons/icon-192.png",
-    data: { url: payload.url || "/" },
-  };
-  event.waitUntil(self.registration.showNotification(title, options));
 });
 
-self.addEventListener("notificationclick", (event) => {
+self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = event.notification.data?.url || "/";
-  event.waitUntil(
-    self.clients.matchAll({ type: "window" }).then((clientList) => {
-      for (const client of clientList) {
-        if (client.url.includes(url) && "focus" in client) return client.focus();
-      }
-      if (self.clients.openWindow) return self.clients.openWindow(url);
-    })
-  );
+  if (event.notification.data) {
+    event.waitUntil(self.clients.openWindow(event.notification.data));
+  }
 });

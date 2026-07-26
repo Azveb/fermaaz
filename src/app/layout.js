@@ -5,6 +5,7 @@ import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import { LocaleProvider } from "@/lib/localeContext";
 import AdBanner from "@/components/AdBanner";
 import { getAdSlotContent } from "@/lib/adSlots";
+import Footer from "@/components/Footer";
 import { Analytics } from "@vercel/analytics/next";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://fermermarket.az";
@@ -60,7 +61,7 @@ export default async function RootLayout({ children }) {
             <AdBanner content={footerAd} imgClassName="w-full h-20 md:h-24 object-cover rounded-xl" />
           </div>
         )}
-        {/* Footer is rendered inside each page that needs it */}
+        <Footer />
         <BottomNav />
         <Analytics />
       </LocaleProvider></body>

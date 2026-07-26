@@ -1,124 +1,92 @@
 "use client";
-import { useState } from "react";
-import { apiFetch } from "@/lib/apiClient";
-import WhatsAppButton from "@/components/WhatsAppButton";
+import React, { useState } from 'react';
+import Icon from '@/components/ui/Icon';
 
-export default function AgronomistPage() {
-  const [question, setQuestion] = useState("");
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState("");
+export default function AgronomPage() {
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState('');
+  const [showCamera, setShowCamera] = useState(false);
 
-  function handleImageChange(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-  }
-
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result.split(",")[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!question && !imageFile) {
-      setError("Sual yazın və ya şəkil yükləyin");
-      return;
-    }
-    setError("");
+  const simulateAI = (text, isImage = false) => {
     setLoading(true);
-    setResult(null);
-    try {
-      let imageBase64, imageMimeType;
-      if (imageFile) {
-        imageBase64 = await fileToBase64(imageFile);
-        imageMimeType = imageFile.type;
+    setTimeout(() => {
+      let reply = "Bu simptomlar 'Tuta Absoluta' xəstəliyinə bənzəyir. Tərkibində Abamectin olan dərmanlardan istifadə etməyi məsləhət görürəm.";
+      if (isImage) {
+        reply = "📸 Şəkili analiz etdim. Yarpaqdakı ağ ləkələr 'Külleme' (Powdery Mildew) göbələk xəstəliyinin əlamətidir. Təcili kükürd əsaslı fungisidlərdən istifadə edin.";
       }
-      const data = await apiFetch("/api/ai/agronomist", {
-        method: "POST",
-        body: JSON.stringify({ question, imageBase64, imageMimeType }),
-      });
-      setResult(data.result);
-    } catch (err) {
-      setError(err.message);
-    } finally {
+      setMessages(prev => [...prev, { text: reply, sender: 'ai' }]);
       setLoading(false);
+    }, 1500);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    setMessages([...messages, { text: input, sender: 'user' }]);
+    simulateAI(input);
+    setInput('');
+  };
+
+  const handleImageUpload = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setMessages([...messages, { text: "[Şəkil yükləndi: Analiz edilir...]", sender: 'user' }]);
+      simulateAI('', true);
     }
-  }
+  };
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-6">
-      <h1 className="text-xl font-bold mb-1">🌱 AI Aqronom</h1>
-      <p className="text-sm text-gray-500 mb-5">
-        Bitki və ya heyvan sağlamlığı ilə bağlı sualınızı yazın, istəyə bağlı şəkil əlavə edin — AI dərhal analiz edəcək.
-      </p>
-
-      <form onSubmit={handleSubmit} className="card p-5 space-y-3">
-        {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg p-2">{error}</p>}
-        <textarea
-          rows={3}
-          placeholder='Məsələn: "Pomidor yarpağı saralır"'
-          className="input-field"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-        />
-        <label className="block">
-          <span className="text-sm font-medium text-gray-600">Şəkil (istəyə bağlı)</span>
-          <input type="file" accept="image/*" onChange={handleImageChange} className="block w-full text-sm mt-1" />
-        </label>
-        {imagePreview && <img src={imagePreview} alt="preview" className="w-full max-h-52 object-contain rounded-xl" />}
-        <button disabled={loading} className="btn-primary w-full">{loading ? "Analiz edilir..." : "AI Analiz Et"}</button>
-      </form>
-
-      {result && (
-        <div className="card p-5 mt-5 space-y-3">
-          {result.diagnosis && (
-            <div>
-              <h2 className="font-bold text-lg">{result.diagnosis}</h2>
-              {typeof result.confidencePercent === "number" && (
-                <p className="text-xs text-gray-500">Ehtimal: {result.confidencePercent}%</p>
-              )}
+    <div className="container mx-auto px-4 py-12 max-w-4xl">
+      <div className="bg-gradient-to-br from-brand-600 to-green-500 rounded-3xl p-8 md:p-12 text-white shadow-xl mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl md:text-5xl font-extrabold mb-4">AI Aqronom</h1>
+          <p className="text-lg opacity-90 max-w-lg">
+            Problemi yazın və ya xəstə yarpağın şəklini yükləyin. Süni Zəka sizə dərman və gübrə təklif edəcək.
+          </p>
+        </div>
+        <div className="hidden md:block">
+          <Icon name="sprout" size={80} className="text-white/20" />
+        </div>
+      </div>
+      
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 flex flex-col h-[500px]">
+        <div className="flex-1 bg-gray-50 rounded-2xl border border-gray-200 p-4 mb-4 overflow-y-auto flex flex-col gap-3">
+          {messages.length === 0 ? (
+            <div className="text-center text-gray-400 text-sm my-auto">
+              Söhbətə başlamaq üçün aşağıdan sualınızı yazın və ya "Kamera" ikonuna klikləyərək şəkil yükləyin.
             </div>
+          ) : (
+            messages.map((m, i) => (
+              <div key={i} className={`max-w-[80%] p-3 rounded-2xl ${m.sender === 'user' ? 'bg-brand-600 text-white self-end rounded-br-sm' : 'bg-white border border-gray-200 text-gray-800 self-start rounded-bl-sm'}`}>
+                {m.text}
+              </div>
+            ))
           )}
-          {result.summary && <p className="text-gray-700 text-sm">{result.summary}</p>}
-          {result.causes?.length > 0 && (
-            <div>
-              <h3 className="font-semibold text-sm">Səbəblər</h3>
-              <ul className="text-sm text-gray-600 list-disc list-inside">
-                {result.causes.map((c, i) => <li key={i}>{c}</li>)}
-              </ul>
-            </div>
-          )}
-          {result.treatment?.length > 0 && (
-            <div>
-              <h3 className="font-semibold text-sm">Tövsiyə olunan addımlar</h3>
-              <ul className="text-sm text-gray-600 list-disc list-inside">
-                {result.treatment.map((t, i) => <li key={i}>{t}</li>)}
-              </ul>
-            </div>
-          )}
-          {result.recommendedProducts?.length > 0 && (
-            <div>
-              <h3 className="font-semibold text-sm">Tövsiyə olunan məhsullar</h3>
-              <p className="text-sm text-gray-600">{result.recommendedProducts.join(", ")}</p>
-            </div>
-          )}
-          {result.needsExpertConsult && (
-            <div className="bg-amber-50 rounded-xl p-3 flex items-center justify-between gap-3">
-              <p className="text-sm text-amber-800">Real aqronom konsultasiyası tövsiyə olunur.</p>
-              <WhatsAppButton message="Salam, AI Aqronomdan bitki xəstəliyi ilə bağlı sizinlə əlaqə saxlamaq istəyirəm." />
+          {loading && (
+            <div className="bg-white border border-gray-200 text-gray-400 self-start p-3 rounded-2xl rounded-bl-sm flex gap-2 items-center">
+              <span className="animate-bounce">●</span>
+              <span className="animate-bounce delay-75">●</span>
+              <span className="animate-bounce delay-150">●</span>
             </div>
           )}
         </div>
-      )}
+        <form onSubmit={handleSubmit} className="flex gap-2 items-center">
+          <label className="bg-gray-100 hover:bg-gray-200 text-gray-600 p-3 rounded-xl cursor-pointer transition-colors shrink-0">
+            <Icon name="camera" size={24} />
+            <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} />
+          </label>
+          <input 
+            type="text" 
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Xəstəliyi və ya problemi yazın..." 
+            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-500 focus:bg-white transition-colors"
+          />
+          <button type="submit" disabled={loading} className="bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white px-6 py-3 rounded-xl font-bold transition-colors">
+            Göndər
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

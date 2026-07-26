@@ -134,6 +134,24 @@ body {
   .divider       { @apply border-t border-[var(--border)] my-6; }
   .glass         { @apply bg-white/70 backdrop-blur-md border border-white/20; }
   .overlay       { @apply fixed inset-0 bg-zinc-950/30 backdrop-blur-sm z-40; }
+
+  /* Premium UI Enhancements */
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-2xl border border-white/60 shadow-xl shadow-gray-200/50 rounded-3xl transition-all duration-300;
+  }
+  .glass-panel:hover {
+    @apply shadow-2xl shadow-brand-500/10 border-brand-200 bg-white/80 transform -translate-y-1;
+  }
+  .btn-premium {
+    @apply relative overflow-hidden bg-gradient-to-r from-brand-500 to-brand-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-brand-500/30 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/40 active:scale-95 flex items-center justify-center gap-2;
+  }
+  .btn-premium::after {
+    content: '';
+    @apply absolute inset-0 bg-white/20 transform -translate-x-full skew-x-12 transition-transform duration-700 ease-in-out;
+  }
+  .btn-premium:hover::after {
+    @apply translate-x-full;
+  }
 }
 
 /* ═══════════════════ UTILITIES ═══════════════════ */
