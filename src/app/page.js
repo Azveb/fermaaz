@@ -121,172 +121,26 @@ export default async function HomePage({ searchParams }) {
     },
   };
 
-  const useDynamicLayout = blocks.length > 0 || editMode;
+  // Use defaults if nothing in DB
+  if (blocks.length === 0) {
+    blocks = [
+      { type: "HERO_SLIDER", props: {} },
+      { type: "PROMO_SLIDER", props: {} },
+      { type: "CATEGORIES", props: { title: "Kateqoriyalar", count: 10 } },
+      { type: "AD_BANNER", props: {} },
+      { type: "PREMIUM_ADS", props: { title: "Premium Elanlar" } },
+      { type: "LATEST_ADS", props: { title: "Yeni Elanlar", count: 8 } },
+      { type: "BUNDLES", props: { title: "Bağlamalar" } },
+      { type: "STATS", props: {} },
+      { type: "BLOG", props: {} }
+    ];
+  }
 
   return (
-    <div className="bg-[#F8FAFC] pb-24 md:pb-0">
+    <div className="bg-[#F8FAFC]">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-
-      {useDynamicLayout ? (
-         <DynamicHomeRenderer initialBlocks={blocks} homeData={homeData} editMode={editMode} />
-      ) : (
-        <>
-          {/* ─── HERO ─── */}
-          {/* ─── HERO SLIDER ─── */}
-          <HeroSlider />
-
-      <div className="max-w-6xl mx-auto px-4 space-y-10 pb-28 md:pb-12">
-
-        {/* ─── PROMO SLIDER ─── */}
-        <section className="animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
-          <PromoSlider />
-        </section>
-
-        {/* ─── QUICK CATEGORIES ─── */}
-        <section className="animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="section-title">Kateqoriyalar</h2>
-              <p className="section-subtitle">Məhsul növünü seçin</p>
-            </div>
-            <Link href="/products" className="text-sm text-brand-600 font-semibold hover:text-brand-700">
-              Hamısı →
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {categories.map((c, i) => {
-              const theme = CATEGORY_THEMES[c.slug] || DEFAULT_THEME;
-              return (
-                <Link
-                  key={c.id}
-                  href={`/products?category=${c.slug}`}
-                  className={`group flex items-center gap-3.5 p-4 rounded-2xl border bg-gradient-to-br ${theme.bg} ${theme.border} hover:shadow-md hover:-translate-y-1 active:scale-[0.98] transition-all duration-300`}
-                  style={{ animationDelay: `${i * 0.05}s` }}
-                >
-                  <span className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center shadow-sm ${theme.iconBg} group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon name={c.icon || CATEGORY_ICONS[c.slug] || "sprout"} size={26} strokeWidth={1.5} />
-                  </span>
-                  <div className="flex flex-col min-w-0">
-                    <span className={`text-sm font-bold truncate leading-tight ${theme.text}`}>
-                      {c.nameAz}
-                    </span>
-                    <span className="text-[10px] text-gray-400 mt-0.5 group-hover:text-brand-600 transition-colors font-medium">
-                      Məhsulları gör →
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-
-
-        {/* ─── HOMEPAGE AD BANNER ─── */}
-        {homepageAd && (
-          <section>
-            <AdBanner content={homepageAd} />
-          </section>
-        )}
-
-        {/* ─── PREMIUM ADS ─── */}
-        {premiumListings.length > 0 && (
-          <section className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="section-title flex items-center gap-2">
-                  <span className="text-amber-500">⭐</span>
-                  Premium Elanlar
-                </h2>
-                <p className="section-subtitle">Seçilmiş satıcıların önə çıxan elanları</p>
-              </div>
-              <Link href="/products?tier=premium" className="text-sm text-brand-600 font-semibold hover:text-brand-700">
-                Hamısı →
-              </Link>
-            </div>
-            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 scroll-snap-x">
-              {premiumListings.map((l) => (
-                <div key={l.id} className="scroll-snap-item shrink-0 w-44 sm:w-52">
-                  <ProductCard
-                    tier={l.tier}
-                    product={{
-                      id: l.product?.id || l.id,
-                      slug: l.product?.slug,
-                      title: l.product?.titleAz || l.product?.title || "Elan",
-                      price: Number(l.product?.price || 0),
-                      coverImage: Array.isArray(l.product?.images) ? l.product.images[0]?.url : null,
-                      region: l.product?.region,
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ─── LATEST ADS ─── */}
-        <section className="animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="section-title">🆕 Yeni Elanlar</h2>
-              <p className="section-subtitle">Ən son əlavə edilmiş məhsullar</p>
-            </div>
-            <Link href="/products" className="text-sm text-brand-600 font-semibold hover:text-brand-700">
-              Hamısı →
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
-            {latestProducts.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={{
-                  id: p.id,
-                  slug: p.slug,
-                  title: p.titleAz || p.title || "Elan",
-                  price: Number(p.price || 0),
-                  coverImage: Array.isArray(p.images) ? p.images[0]?.url : null,
-                  region: p.region,
-                  city: p.city,
-                }}
-              />
-            ))}
-          </div>
-        </section>
-
-        {/* ─── BUNDLES ─── */}
-        {bundles.length > 0 && (
-          <section className="animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="section-title">🎁 Bağlamalar</h2>
-                <p className="section-subtitle">Birlikdə al, qənaət et</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-              {bundles.map((b) => (
-                <BundleCard key={b.id} bundle={b} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ─── STATISTICS ─── */}
-        <StatsSection />
-
-        {/* ─── AI AGRONOM CARD ─── */}
-        <AgronomCard />
-
-        {/* ─── BLOG SECTION ─── */}
-        {blogPosts.length > 0 && <BlogSection posts={blogPosts} />}
-
-
-
-      </div>
-
-      {/* ─── FOOTER ─── */}
-      <Footer />
-        </>
-      )}
+      <DynamicHomeRenderer initialBlocks={blocks} homeData={homeData} editMode={editMode} />
+      {!editMode && <Footer />}
     </div>
   );
 }

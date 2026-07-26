@@ -4,9 +4,14 @@ import Icon from "@/components/ui/Icon";
 import { apiFetch } from "@/lib/apiClient";
 
 const DEFAULT_BLOCKS = [
-  { type: "HERO_BANNER", props: { title: "FermerMarket-ə Xoş Gəlmisiniz", subtitle: "Təzə kənd təsərrüfatı məhsulları", bg: "from-brand-600 to-green-400" } },
-  { type: "CATEGORIES", props: { title: "Populyar Kateqoriyalar" } },
-  { type: "FEATURED_PRODUCTS", props: { title: "Seçilmiş Elanlar", count: 8 } },
+  { type: "HERO_SLIDER", props: {} },
+  { type: "PROMO_SLIDER", props: {} },
+  { type: "CATEGORIES", props: { title: "Kateqoriyalar", count: 10 } },
+  { type: "PREMIUM_ADS", props: { title: "Premium Elanlar" } },
+  { type: "LATEST_ADS", props: { title: "Yeni Elanlar", count: 8 } },
+  { type: "BUNDLES", props: { title: "Bağlamalar" } },
+  { type: "STATS", props: {} },
+  { type: "BLOG", props: {} }
 ];
 
 export default function StudioPage() {
@@ -66,9 +71,10 @@ export default function StudioPage() {
 
   const addBlock = (type) => {
     let newBlock = { type, props: {} };
-    if (type === "HERO_BANNER") newBlock.props = { title: "Yeni Başlıq", subtitle: "Alt başlıq", bg: "from-gray-800 to-gray-600" };
-    if (type === "CATEGORIES") newBlock.props = { title: "Yeni Kateqoriyalar" };
-    if (type === "FEATURED_PRODUCTS") newBlock.props = { title: "Yeni Məhsullar", count: 4 };
+    if (type === "CATEGORIES") newBlock.props = { title: "Kateqoriyalar", subtitle: "Məhsul növünü seçin", count: 10 };
+    if (type === "PREMIUM_ADS") newBlock.props = { title: "Premium Elanlar", subtitle: "Önə çıxan elanlar" };
+    if (type === "LATEST_ADS") newBlock.props = { title: "Yeni Elanlar", subtitle: "Ən son əlavə edilmiş məhsullar", count: 8 };
+    if (type === "BUNDLES") newBlock.props = { title: "Bağlamalar" };
     
     setBlocks([...blocks, newBlock]);
     setActiveBlockIndex(blocks.length);
@@ -200,9 +206,15 @@ export default function StudioPage() {
           <div>
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Modul Əlavə Et</h3>
             <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => addBlock('HERO_BANNER')} className="text-[11px] font-semibold border border-gray-200 rounded-lg p-2 hover:bg-gray-50 hover:border-brand-300 transition">Banner</button>
+              <button onClick={() => addBlock('HERO_SLIDER')} className="text-[11px] font-semibold border border-gray-200 rounded-lg p-2 hover:bg-gray-50 hover:border-brand-300 transition">Ana Slider</button>
+              <button onClick={() => addBlock('PROMO_SLIDER')} className="text-[11px] font-semibold border border-gray-200 rounded-lg p-2 hover:bg-gray-50 hover:border-brand-300 transition">Promo Kartlar</button>
               <button onClick={() => addBlock('CATEGORIES')} className="text-[11px] font-semibold border border-gray-200 rounded-lg p-2 hover:bg-gray-50 hover:border-brand-300 transition">Kateqoriyalar</button>
-              <button onClick={() => addBlock('FEATURED_PRODUCTS')} className="text-[11px] font-semibold border border-gray-200 rounded-lg p-2 hover:bg-gray-50 hover:border-brand-300 transition">Elanlar</button>
+              <button onClick={() => addBlock('PREMIUM_ADS')} className="text-[11px] font-semibold border border-gray-200 rounded-lg p-2 hover:bg-gray-50 hover:border-brand-300 transition">Premium Elanlar</button>
+              <button onClick={() => addBlock('LATEST_ADS')} className="text-[11px] font-semibold border border-gray-200 rounded-lg p-2 hover:bg-gray-50 hover:border-brand-300 transition">Yeni Elanlar</button>
+              <button onClick={() => addBlock('BUNDLES')} className="text-[11px] font-semibold border border-gray-200 rounded-lg p-2 hover:bg-gray-50 hover:border-brand-300 transition">Bağlamalar</button>
+              <button onClick={() => addBlock('STATS')} className="text-[11px] font-semibold border border-gray-200 rounded-lg p-2 hover:bg-gray-50 hover:border-brand-300 transition">Statistika</button>
+              <button onClick={() => addBlock('BLOG')} className="text-[11px] font-semibold border border-gray-200 rounded-lg p-2 hover:bg-gray-50 hover:border-brand-300 transition">Blog / Xəbərlər</button>
+              <button onClick={() => addBlock('AD_BANNER')} className="text-[11px] font-semibold border border-gray-200 rounded-lg p-2 hover:bg-gray-50 hover:border-brand-300 transition">Reklam Banneri</button>
             </div>
           </div>
 
