@@ -199,218 +199,34 @@ export default function Header() {
           )}
         </nav>
 
-        {/* Mobile right icons — NO "Elan ver" button here */}
-        <div className="md:hidden flex items-center gap-2 ml-auto">
-          {user && (
-            <Link href="/messages" className="relative w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 text-lg">
-              <Icon name="message" size={19} />
-              {unreadMsg > 0 && (
-                <span className="absolute top-0.5 right-0.5 bg-brand-600 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                  {unreadMsg > 9 ? "9+" : unreadMsg}
-                </span>
-              )}
-            </Link>
-          )}
-          <Link href="/cart" className="relative w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 text-lg">
-            <Icon name="cart" size={19} />
+        {/* Mobile right icons */}
+        <div className="md:hidden flex items-center gap-1.5 ml-auto">
+          {user && <NotificationBell />}
+          <Link href="/cart" className="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 text-lg transition-colors">
+            <Icon name="cart" size={20} />
             {count > 0 && (
-              <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                {count}
+              <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-[18px] h-[18px] flex items-center justify-center border-2 border-white">
+                {count > 9 ? "9+" : count}
               </span>
             )}
           </Link>
-          {user ? (
-            <button
-              onClick={() => setMenuOpen((v) => !v)}
-              className="w-9 h-9 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center font-bold text-sm relative"
-            >
-              {user.fullName?.[0] || "U"}
-            </button>
-          ) : (
-            <Link href="/login" className="btn-primary text-xs py-1.5 px-3">Giriş</Link>
-          )}
         </div>
 
-        {/* Mobile search bar */}
-        <div className="md:hidden w-full border-t border-gray-100 px-3 py-2">
-          <form action="/products" className="flex h-9">
-            <div className="flex w-full rounded-xl border border-gray-200 overflow-hidden focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100 transition-all">
-              <input
-                name="search"
-                placeholder="Məhsul axtar..."
-                className="flex-1 min-w-0 h-full px-3 text-sm bg-gray-50 focus:outline-none focus:bg-white"
-              />
-              <button type="submit" className="shrink-0 w-10 h-full flex items-center justify-center bg-brand-600 text-white">
-                <Icon name="search" size={16} strokeWidth={2.2} />
-              </button>
+        {/* Mobile search bar - Premium SaaS Style */}
+        <div className="md:hidden w-full pb-3 px-1 mt-1">
+          <form action="/products" className="flex h-11 shadow-sm rounded-full overflow-hidden border border-gray-200 focus-within:border-brand-400 focus-within:ring-4 focus-within:ring-brand-50 transition-all bg-gray-50">
+            <div className="flex items-center justify-center w-11 text-gray-400">
+              <Icon name="search" size={18} strokeWidth={2.2} />
             </div>
+            <input
+              name="search"
+              placeholder="Məhsul, kateqoriya axtar..."
+              className="flex-1 min-w-0 h-full text-sm bg-transparent focus:outline-none text-gray-800 pr-4"
+            />
           </form>
         </div>
-{/* Mobile Footer Menu */}
-{menuOpen && user && (
-  <>
-    {/* Backdrop */}
-    <div
-      className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40 md:hidden"
-      onClick={() => setMenuOpen(false)}
-    />
-
-    {/* Menu */}
-    <div
-      className="
-        md:hidden
-        fixed
-        left-3
-        right-3
-        bottom-20
-        z-50
-        bg-white
-        rounded-3xl
-        shadow-2xl
-        border border-gray-100
-        overflow-hidden
-        animate-in
-        slide-in-from-bottom-5
-        duration-200
-        max-h-[70vh]
-        overflow-y-auto
-      "
-    >
-      {/* User */}
-      <div className="px-5 py-4 border-b">
-        <p className="font-semibold text-gray-900 truncate">
-          {user.fullName}
-        </p>
-
-        <p className="text-sm text-gray-500">
-          {ROLE_LABELS[user.role]}
-        </p>
-      </div>
-
-      <div className="p-2">
-
-        <Link
-          href="/dashboard"
-          onClick={() => setMenuOpen(false)}
-          className="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-gray-50 transition"
-        >
-          <Icon name="dashboard" size={20} />
-          <span className="font-medium">
-            Şəxsi Kabinet
-          </span>
-        </Link>
-
-        <Link
-          href="/messages"
-          onClick={() => setMenuOpen(false)}
-          className="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-gray-50 transition"
-        >
-          <Icon name="message" size={20} />
-
-          <span className="font-medium">
-            Mesajlar
-          </span>
-
-          {unreadMsg > 0 && (
-            <span className="ml-auto bg-brand-600 text-white text-xs rounded-full min-w-[22px] h-[22px] flex items-center justify-center font-semibold">
-              {unreadMsg}
-            </span>
-          )}
-        </Link>
-
-        <Link
-          href="/elan-yerlesdir"
-          onClick={() => setMenuOpen(false)}
-          className="flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-gray-50 transition"
-        >
-          <Icon name="plus" size={20} />
-
-          <span className="font-medium">
-            Yeni Elan
-          </span>
-        </Link>
-
-        <button
-          onClick={logout}
-          className="
-            w-full
-            flex
-            items-center
-            gap-4
-            px-4
-            py-3
-            rounded-2xl
-            text-red-600
-            hover:bg-red-50
-            transition
-            mt-1
-          "
-        >
-          <span className="text-xl">🚪</span>
-
-          <span className="font-semibold">
-            Çıxış
-          </span>
-        </button>
-
-      </div>
-    </div>
-  </>
-)}
       </div>
     </header>
-
-    {/* Mobile Bottom Navigation (App-like UX) */}
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/80 backdrop-blur-xl border-t border-gray-100 shadow-[0_-4px_24px_rgba(0,0,0,0.04)] pb-safe">
-      <div className="flex items-center justify-around h-16 px-2">
-        
-        <Link href="/" className="flex flex-col items-center justify-center w-16 h-full text-gray-500 hover:text-brand-600">
-          <Icon name="dashboard" size={22} className="mb-1" />
-          <span className="text-[10px] font-medium">Əsas</span>
-        </Link>
-        
-        <Link href="/products" className="flex flex-col items-center justify-center w-16 h-full text-gray-500 hover:text-brand-600">
-          <Icon name="search" size={22} className="mb-1" />
-          <span className="text-[10px] font-medium">Axtarış</span>
-        </Link>
-
-        {/* Center Floating FAB */}
-        <div className="relative -top-5 flex justify-center w-16">
-          <Link href="/elan-yerlesdir" className="w-14 h-14 bg-gradient-to-br from-brand-500 to-brand-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-brand-500/40 active:scale-95 transition-transform border-4 border-white">
-            <Icon name="plus" size={24} strokeWidth={2.5} />
-          </Link>
-        </div>
-
-        <Link href="/messages" className="relative flex flex-col items-center justify-center w-16 h-full text-gray-500 hover:text-brand-600">
-          <Icon name="message" size={22} className="mb-1" />
-          <span className="text-[10px] font-medium">Mesaj</span>
-          {unreadMsg > 0 && (
-            <span className="absolute top-1.5 right-3 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center border-2 border-white">
-              {unreadMsg > 9 ? "9+" : unreadMsg}
-            </span>
-          )}
-        </Link>
-
-        {!mounted ? (
-          <div className="flex flex-col items-center justify-center w-16 h-full text-gray-300">
-             <div className="w-6 h-6 bg-gray-100 rounded-full mb-1 animate-pulse" />
-             <span className="text-[10px] font-medium bg-gray-100 text-transparent rounded animate-pulse">....</span>
-          </div>
-        ) : user ? (
-          <Link href="/dashboard" className="flex flex-col items-center justify-center w-16 h-full text-gray-500 hover:text-brand-600">
-            <div className="w-6 h-6 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-[10px] font-bold mb-1 border border-brand-200">
-              {user.fullName?.[0] || "U"}
-            </div>
-            <span className="text-[10px] font-medium">Profil</span>
-          </Link>
-        ) : (
-          <Link href="/login" className="flex flex-col items-center justify-center w-16 h-full text-gray-500 hover:text-brand-600">
-             <Icon name="logout" size={22} className="mb-1" />
-             <span className="text-[10px] font-medium">Giriş</span>
-          </Link>
-        )}
-      </div>
-    </nav>
     </>
   );
 }

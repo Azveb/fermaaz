@@ -56,8 +56,8 @@ export default function BottomNav() {
   if (!mounted) return null;
 
   const leftItems = [
-    { href: "/",        label: "Ana Səhifə", icon: "home" },
-    { href: "/products", label: "Məhsullar",  icon: "cart" },
+    { href: "/",           label: "Əsas",     icon: "home" },
+    { href: "/categories", label: "Kataloq",  icon: "dashboard" },
   ];
   const rightItems = isLoggedIn
     ? [
@@ -85,16 +85,16 @@ export default function BottomNav() {
             />
           ))}
 
-          {/* Mərkəzi FAB — sabit en, sola/sağa sıxılmır */}
-          <div className="flex-shrink-0 w-16 flex flex-col items-center justify-end pb-1">
+          {/* Center Floating FAB */}
+          <div className="flex-shrink-0 w-[72px] flex flex-col items-center justify-end pb-1 relative z-10">
             <Link
               href="/elan-yerlesdir"
               aria-label="Elan yerləşdir"
-              className="w-[52px] h-[52px] rounded-full bg-green-600 hover:bg-green-700 active:scale-95 text-white flex items-center justify-center shadow-lg border-[3px] border-white transition-all"
+              className="absolute -top-6 w-[56px] h-[56px] rounded-full bg-gradient-to-br from-brand-500 to-brand-600 hover:scale-105 active:scale-95 text-white flex items-center justify-center shadow-xl shadow-brand-500/30 border-[4px] border-white transition-all"
             >
-              <Icon name="plus" size={21} strokeWidth={2.4} />
+              <Icon name="plus" size={24} strokeWidth={2.8} />
             </Link>
-            <span className="text-[9px] font-bold text-green-600 mt-0.5 leading-none">Elan ver</span>
+            <span className="text-[10px] font-bold text-brand-700 mt-9 leading-none">Sat</span>
           </div>
 
           {/* Sağ 2 buton — hər biri flex-1 */}
