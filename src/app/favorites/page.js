@@ -1,23 +1,30 @@
-import { requireAuth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+"use client";
+import { useState, useEffect } from "react";
+import { apiFetch, getUser } from "@/lib/apiClient";
+import { useRouter } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
 import Icon from "@/components/ui/Icon";
 import Link from "next/link";
+import useSWR from "swr";
 
-export const metadata = {
-  title: "Seçilmiş Elanlar",
-};
+const fetcher = (url) => apiFetch(url);
 
-export default async function FavoritesPage() {
-  const user = await requireAuth();
+export default function FavoritesPage() {
+  const router = useRouter();
+  const [user, setUser] = useState(null);
 
-  const favorites = await prisma.favorite.findMany({
-    where: { userId: user.id },
-    include: {
-      product: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  useEffect(() => {
+    const u = getUser();
+    if (!u) {
+      router.push("/login");
+    } else {
+      setUser(u);
+    }
+  }, [router]);
+
+  const { data, error, isLoading } = useSWR(user ? "/api/favorites" : null, fetcher);
+
+  if (!user) return null;
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen pb-24 md:pb-12 pt-6">
@@ -29,7 +36,15 @@ export default async function FavoritesPage() {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Seçilmiş Elanlar</h1>
         </div>
 
-        {favorites.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-40 text-gray-400">
+            <Icon name="loader" size={24} className="animate-spin" /> Yüklənir...
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-500 py-10">
+            Xəta baş verdi: {error.message || "Bilinməyən xəta"}
+          </div>
+        ) : !data?.favorites || data.favorites.length === 0 ? (
           <div className="bg-white rounded-3xl p-10 text-center flex flex-col items-center justify-center min-h-[50vh] border border-gray-100 shadow-sm">
             <div className="w-20 h-20 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mb-4">
               <Icon name="heart" size={32} />
@@ -40,7 +55,7 @@ export default async function FavoritesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-            {favorites.map((fav) => (
+            {data.favorites.map((fav) => (
               <ProductCard
                 key={fav.id}
                 product={{

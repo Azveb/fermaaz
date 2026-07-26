@@ -9,7 +9,7 @@ export async function GET(request) {
   const authUser = getAuthUser(request);
   if (!authUser) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const conversations = await prisma.conversation.findMany({
+  let conversations = await prisma.conversation.findMany({
     where: { OR: [{ buyerId: authUser.sub }, { sellerId: authUser.sub }] },
     orderBy: { lastMessageAt: "desc" },
     include: {
@@ -17,8 +17,25 @@ export async function GET(request) {
       seller: { select: { id: true, fullName: true } },
       product: { select: { id: true, titleAz: true, slug: true } },
       messages: { orderBy: { createdAt: "desc" }, take: 1 },
+      _count: {
+        select: {
+          messages: {
+            where: {
+              senderId: { not: authUser.sub },
+              readAt: null
+            }
+          }
+        }
+      }
     },
   });
+
+  // Map _count.messages to _unread
+  conversations = conversations.map(c => ({
+    ...c,
+    _unread: c._count.messages,
+    _count: undefined // remove the original _count object to keep the response clean
+  }));
 
   return Response.json({ conversations });
 }
